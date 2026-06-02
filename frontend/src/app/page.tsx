@@ -56,14 +56,14 @@ export default function Home() {
 
         <FadeIn delay={0.4}>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/problems">
+            <Link href="/learning">
               <PremiumButton className="text-base px-8 py-4 flex items-center gap-2">
-                Start Solving <ChevronRight size={18} />
+                DSA Library <ChevronRight size={18} />
               </PremiumButton>
             </Link>
-            <Link href="/dashboard">
+            <Link href="/problems">
               <button className="text-base px-8 py-4 rounded-lg bg-transparent border border-gray-700 text-white font-semibold hover:border-gray-400 transition-colors flex items-center gap-2">
-                Explore Dashboard
+                Start Solving
               </button>
             </Link>
           </div>
