@@ -3,6 +3,7 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import dbConnect from '@/lib/db/mongodb';
 import User from '@/lib/models/User';
+import '@/lib/models/Problem'; // Register Problem schema for Mongoose populate
 import Link from 'next/link';
 import { Award, Bell, CheckCircle2, TrendingUp, Zap, Clock, Target, Shield } from 'lucide-react';
 import { BentoCard } from '@/components/ui/BentoCard';
