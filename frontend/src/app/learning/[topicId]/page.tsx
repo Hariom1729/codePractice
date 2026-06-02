@@ -6,7 +6,7 @@ import { FadeIn } from '@/components/ui/FadeIn';
 import { BentoCard } from '@/components/ui/BentoCard';
 import { RoadmapVisualizer } from '@/components/learning/RoadmapVisualizer';
 import { PremiumButton } from '@/components/ui/PremiumButton';
-import { BookOpen, PlayCircle, Code2, ArrowRight, Activity, BrainCircuit, Layout } from 'lucide-react';
+import { BookOpen, PlayCircle, Code2, ArrowRight, Activity, BrainCircuit, Layout, ChevronRight, Check } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function TopicOverview({ params }: { params: Promise<{ topicId: string }> }) {
@@ -212,6 +212,3 @@ export default async function TopicOverview({ params }: { params: Promise<{ topi
     </div>
   );
 }
-
-// Needed icon for breadcrumbs
-import { ChevronRight, Check } from 'lucide-react';
