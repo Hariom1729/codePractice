@@ -1,26 +1,75 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-neon-cyan: #0ff;
+  --color-neon-cyan-glow: rgba(0, 255, 255, 0.5);
+  --color-neon-purple: #b026ff;
+  --color-neon-purple-glow: rgba(176, 38, 255, 0.5);
+  --color-neon-green: #39ff14;
+  --color-neon-green-glow: rgba(57, 255, 20, 0.5);
+  --color-neon-red: #ff073a;
+  --color-neon-red-glow: rgba(255, 7, 58, 0.5);
+  
+  --color-bg-deep: #020617; /* slate-950 */
+  --color-bg-glass: rgba(15, 23, 42, 0.6); /* slate-900 with opacity */
+  --color-border-glass: rgba(255, 255, 255, 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: var(--color-bg-deep);
+    --foreground: #f8fafc; /* slate-50 */
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-geist-sans), sans-serif;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .glass {
+    @apply bg-[var(--color-bg-glass)] backdrop-blur-md border border-[var(--color-border-glass)];
+  }
+  
+  .glow-cyan {
+    box-shadow: 0 0 10px var(--color-neon-cyan-glow), 0 0 20px var(--color-neon-cyan-glow);
+  }
+  
+  .glow-text-cyan {
+    text-shadow: 0 0 5px var(--color-neon-cyan-glow), 0 0 10px var(--color-neon-cyan-glow);
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 10px var(--color-neon-purple-glow), 0 0 20px var(--color-neon-purple-glow);
+  }
+
+  .glow-text-purple {
+    text-shadow: 0 0 5px var(--color-neon-purple-glow), 0 0 10px var(--color-neon-purple-glow);
+  }
+  
+  .glow-green {
+    box-shadow: 0 0 10px var(--color-neon-green-glow), 0 0 20px var(--color-neon-green-glow);
+  }
+
+  .glow-red {
+    box-shadow: 0 0 10px var(--color-neon-red-glow), 0 0 20px var(--color-neon-red-glow);
+  }
+  
+  /* Webkit Scrollbar Styling for Editor / Panes */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-deep); 
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2); 
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4); 
+  }
 }
