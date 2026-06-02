@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* Existing neon colors for legacy compatibility */
   --color-neon-cyan: #0ff;
   --color-neon-cyan-glow: rgba(0, 255, 255, 0.5);
   --color-neon-purple: #b026ff;
@@ -13,11 +14,21 @@
   --color-bg-deep: #020617; /* slate-950 */
   --color-bg-glass: rgba(15, 23, 42, 0.6); /* slate-900 with opacity */
   --color-border-glass: rgba(255, 255, 255, 0.1);
+
+  /* New Ultra-Premium Cinematic Palette */
+  --color-bg-obsidian: #050816;
+  --color-surface-obsidian: #0B1020;
+  --color-surface-elevated: #101827;
+  --color-accent-blue: #3b82f6; /* Electric Blue */
+  --color-accent-indigo: #4f46e5;
+  --color-accent-violet: #8b5cf6;
+  --color-accent-cyan: #06b6d4;
+  --color-accent-emerald: #10b981;
 }
 
 @layer base {
   :root {
-    --background: var(--color-bg-deep);
+    --background: var(--color-bg-obsidian);
     --foreground: #f8fafc; /* slate-50 */
   }
 

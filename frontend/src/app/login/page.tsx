@@ -7,7 +7,9 @@ import Link from 'next/link';
 import Button from '@/components/Button';
 import { Terminal } from 'lucide-react';
 
-export default function LoginPage() {
+import { Suspense } from 'react';
+
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
@@ -100,5 +102,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex-grow flex items-center justify-center p-4 text-white">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
