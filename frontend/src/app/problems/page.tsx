@@ -4,10 +4,17 @@ import { Star } from 'lucide-react';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import User from '@/lib/models/User';
+import DropdownFilter from '@/components/DropdownFilter';
+import { Tag } from 'lucide-react';
 
 export const revalidate = 0; // Dynamic rendering
 
-export default async function ProblemsDirectory() {
+export default async function ProblemsDirectory({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const resolvedSearchParams = await searchParams;
   const res = await fetch('http://localhost:5001/api/problems', { cache: 'no-store' });
   const problems = await res.json();
   
@@ -21,6 +28,27 @@ export default async function ProblemsDirectory() {
     }
   }
 
+  const difficultyFilter = resolvedSearchParams.difficulty;
+  const topicFilter = resolvedSearchParams.topic;
+
+  // Extract unique topics for the dropdown
+  const uniqueTopics = Array.from(new Set(problems.map((p: any) => p.topic).filter(Boolean))).sort();
+  const topicOptions = uniqueTopics.map((topic: any) => ({ value: topic, label: topic }));
+
+  const difficultyOptions = [
+    { value: 'Easy', label: 'Easy' },
+    { value: 'Medium', label: 'Medium' },
+    { value: 'Hard', label: 'Hard' }
+  ];
+
+  let filteredProblems = problems;
+  if (difficultyFilter && typeof difficultyFilter === 'string' && difficultyFilter !== 'All') {
+    filteredProblems = filteredProblems.filter((p: any) => p.difficulty === difficultyFilter);
+  }
+  if (topicFilter && typeof topicFilter === 'string' && topicFilter !== 'All') {
+    filteredProblems = filteredProblems.filter((p: any) => p.topic === topicFilter);
+  }
+
   return (
     <div className="flex-grow p-8 max-w-7xl mx-auto w-full">
       <header className="mb-10 text-center">
@@ -29,6 +57,20 @@ export default async function ProblemsDirectory() {
         </h1>
         <p className="text-gray-400">Select a challenge to prove your worth on the grid.</p>
       </header>
+
+      <div className="flex justify-start gap-4 mb-4">
+        <DropdownFilter 
+          paramKey="difficulty" 
+          options={difficultyOptions} 
+          label="Difficulties" 
+        />
+        <DropdownFilter 
+          paramKey="topic" 
+          options={topicOptions} 
+          label="Topics"
+          iconNode={<Tag size={16} className="text-[var(--color-neon-cyan)] flex-shrink-0" />}
+        />
+      </div>
 
       <div className="glass rounded-xl border border-[var(--color-border-glass)] overflow-hidden">
         <div className="overflow-x-auto">
@@ -42,8 +84,8 @@ export default async function ProblemsDirectory() {
               </tr>
             </thead>
             <tbody>
-              {problems.length > 0 ? (
-                problems.map((problem: any) => {
+              {filteredProblems.length > 0 ? (
+                filteredProblems.map((problem: any) => {
                   const isBookmarked = bookmarkedIds.has(problem._id.toString());
                   return (
                     <tr 
@@ -58,10 +100,16 @@ export default async function ProblemsDirectory() {
                       <td className="p-4">
                         <Link 
                           href={`/problems/${problem._id}`}
-                          className="text-white hover:text-[var(--color-neon-cyan)] hover:glow-text-cyan transition-all font-medium text-lg"
+                          className="text-white hover:text-[var(--color-neon-cyan)] hover:glow-text-cyan transition-all font-medium text-lg block mb-1"
                         >
                           {problem.title}
                         </Link>
+                        {problem.topic && (
+                          <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-800/50 px-2 py-0.5 rounded border border-gray-700">
+                            <Tag size={10} />
+                            {problem.topic}
+                          </span>
+                        )}
                       </td>
                       <td className="p-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -89,7 +137,7 @@ export default async function ProblemsDirectory() {
               ) : (
                 <tr>
                   <td colSpan={4} className="p-8 text-center text-gray-500">
-                    No problems available in the grid yet. Admins must initialize challenges.
+                    No problems available in this category yet.
                   </td>
                 </tr>
               )}
