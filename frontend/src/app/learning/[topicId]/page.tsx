@@ -8,6 +8,7 @@ import { RoadmapVisualizer } from '@/components/learning/RoadmapVisualizer';
 import { PremiumButton } from '@/components/ui/PremiumButton';
 import { BookOpen, PlayCircle, Code2, ArrowRight, Activity, BrainCircuit, Layout, ChevronRight, Check } from 'lucide-react';
 import Link from 'next/link';
+import { AITutor } from '@/components/learning/AITutor';
 
 export default async function TopicOverview({ params }: { params: Promise<{ topicId: string }> }) {
   const session = await getServerSession(authOptions);
@@ -146,21 +147,9 @@ export default async function TopicOverview({ params }: { params: Promise<{ topi
           <div className="col-span-1 space-y-8">
             
             <FadeIn delay={0.4}>
-              <BentoCard className="p-6 bg-gradient-to-br from-[var(--color-accent-violet)]/20 to-[var(--color-surface-obsidian)] border-[var(--color-accent-violet)]/30">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 rounded-lg bg-[var(--color-accent-violet)] text-white">
-                    <BrainCircuit size={20} />
-                  </div>
-                  <h3 className="font-bold text-lg text-white">AI Topic Tutor</h3>
-                </div>
-                <p className="text-sm text-gray-300 mb-6 leading-relaxed">
-                  Stuck on a concept? Ask the AI tutor to explain {title} in simple terms, generate custom examples, or quiz you.
-                </p>
-                <div className="w-full bg-[#050816] rounded-xl p-3 border border-[var(--color-border-glass)] text-sm text-gray-400 flex items-center justify-between cursor-text hover:border-[var(--color-accent-violet)] transition-colors">
-                  <span>Ask a question...</span>
-                  <div className="px-2 py-0.5 rounded bg-white/10 text-xs font-mono text-gray-300">⌘K</div>
-                </div>
-              </BentoCard>
+              <div className="h-[400px]">
+                <AITutor contextTopic={title} />
+              </div>
             </FadeIn>
 
             <FadeIn delay={0.5}>

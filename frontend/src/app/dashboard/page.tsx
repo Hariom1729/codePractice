@@ -12,6 +12,8 @@ import { FadeIn } from '@/components/ui/FadeIn';
 import { PremiumButton } from '@/components/ui/PremiumButton';
 import { CodingHeatmap } from '@/components/ui/CodingHeatmap';
 import { AnalyticsChart } from '@/components/ui/AnalyticsChart';
+import { LevelRing } from '@/components/gamification/LevelRing';
+import { StreakCalendar } from '@/components/gamification/StreakCalendar';
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -96,18 +98,22 @@ export default async function DashboardPage() {
             </FadeIn>
           ))}
 
-          {/* Activity Heatmap */}
-          <FadeIn delay={0.6} className="col-span-1 md:col-span-4">
-            <CodingHeatmap />
+          {/* Learning Streak & Level */}
+          <FadeIn delay={0.6} className="col-span-1 md:col-span-2 lg:col-span-1 flex justify-center items-center">
+            <LevelRing level={42} xp={8450} nextLevelXp={10000} size={220} />
+          </FadeIn>
+          
+          <FadeIn delay={0.7} className="col-span-1 md:col-span-2 lg:col-span-3">
+            <StreakCalendar currentStreak={14} longestStreak={32} activityData={[]} />
           </FadeIn>
 
           {/* Analytics Chart */}
-          <FadeIn delay={0.7} className="col-span-1 md:col-span-2 lg:col-span-3">
+          <FadeIn delay={0.8} className="col-span-1 md:col-span-2 lg:col-span-3">
             <AnalyticsChart />
           </FadeIn>
 
           {/* Achievements Panel */}
-          <FadeIn delay={0.8} className="col-span-1 md:col-span-2 lg:col-span-1">
+          <FadeIn delay={0.9} className="col-span-1 md:col-span-2 lg:col-span-1">
             <BentoCard className="h-[350px] flex flex-col p-6">
               <div className="flex items-center gap-2 mb-6">
                 <Award size={20} className="text-[var(--color-accent-violet)]" />

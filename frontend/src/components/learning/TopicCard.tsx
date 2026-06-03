@@ -7,7 +7,7 @@ interface TopicCardProps {
   id: string;
   title: string;
   icon: LucideIcon;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
   estimatedTime: string;
   lessonsCount: number;
   progress: number; // 0-100
@@ -54,7 +54,8 @@ export function TopicCard({ id, title, icon: Icon, difficulty, estimatedTime, le
             <div className="flex items-center gap-2">
               <span className={`px-2 py-1 rounded-md bg-white/5 border border-white/5 ${
                 difficulty === 'Beginner' ? 'text-green-400' :
-                difficulty === 'Intermediate' ? 'text-yellow-400' : 'text-red-400'
+                difficulty === 'Intermediate' ? 'text-yellow-400' : 
+                difficulty === 'Advanced' ? 'text-red-400' : 'text-fuchsia-500'
               }`}>
                 {difficulty}
               </span>

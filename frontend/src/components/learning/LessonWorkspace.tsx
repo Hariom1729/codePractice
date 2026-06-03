@@ -8,6 +8,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrayVisualizer } from '@/components/visualizers/ArrayVisualizer';
 import { GraphVisualizer } from '@/components/visualizers/GraphVisualizer';
 import { SortingVisualizer } from '@/components/visualizers/SortingVisualizer';
+import { AITutor } from '@/components/learning/AITutor';
+import { InteractiveQuiz } from '@/components/learning/InteractiveQuiz';
+import { ComplexityVisualizer } from '@/components/learning/ComplexityVisualizer';
+import { RevisionSheet } from '@/components/learning/RevisionSheet';
 
 interface LessonWorkspaceProps {
   topicId: string;
@@ -18,7 +22,7 @@ export function LessonWorkspace({ topicId, lessonId }: LessonWorkspaceProps) {
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState('// Write your implementation here\n\nfunction solve() {\n  \n}');
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'theory' | 'visualizer' | 'notes'>('visualizer');
+  const [activeTab, setActiveTab] = useState<'theory' | 'visualizer' | 'quiz' | 'cheatsheet'>('theory');
 
   const renderVisualizer = () => {
     if (topicId === 'arrays' || topicId === 'binary-search') return <ArrayVisualizer />;
@@ -34,29 +38,34 @@ export function LessonWorkspace({ topicId, lessonId }: LessonWorkspaceProps) {
         <Panel defaultSize={45} minSize={30} className="flex flex-col bg-[var(--color-surface-obsidian)] m-2 rounded-xl border border-[var(--color-border-glass)] overflow-hidden relative">
           
           {/* Tabs */}
-          <div className="flex items-center gap-1 p-2 border-b border-[var(--color-border-glass)] bg-white/[0.02]">
-            <button onClick={() => setActiveTab('theory')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 ${activeTab === 'theory' ? 'bg-[var(--color-surface-elevated)] text-white shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}>
-              <BookOpen size={16} /> Theory
+          <div className="flex items-center gap-1 p-2 border-b border-[var(--color-border-glass)] bg-white/[0.02] overflow-x-auto custom-scrollbar whitespace-nowrap">
+            <button onClick={() => setActiveTab('theory')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shrink-0 ${activeTab === 'theory' ? 'bg-[var(--color-surface-elevated)] text-white shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}>
+              <BookOpen size={16} /> Theory & Complexity
             </button>
-            <button onClick={() => setActiveTab('visualizer')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 ${activeTab === 'visualizer' ? 'bg-[var(--color-surface-elevated)] text-[var(--color-accent-cyan)] shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}>
-              <Play size={16} /> Interactive Visualizer
+            <button onClick={() => setActiveTab('visualizer')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shrink-0 ${activeTab === 'visualizer' ? 'bg-[var(--color-surface-elevated)] text-[var(--color-accent-cyan)] shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}>
+              <Play size={16} /> Visualizer
             </button>
-            <button onClick={() => setActiveTab('notes')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 ${activeTab === 'notes' ? 'bg-[var(--color-surface-elevated)] text-[var(--color-accent-emerald)] shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}>
-              <FileText size={16} /> My Notes
+            <button onClick={() => setActiveTab('quiz')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shrink-0 ${activeTab === 'quiz' ? 'bg-[var(--color-surface-elevated)] text-[var(--color-accent-emerald)] shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}>
+              <CheckCircle2 size={16} /> Quiz
+            </button>
+            <button onClick={() => setActiveTab('cheatsheet')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shrink-0 ${activeTab === 'cheatsheet' ? 'bg-[var(--color-surface-elevated)] text-orange-400 shadow-sm' : 'text-gray-400 hover:text-gray-200'}`}>
+              <FileText size={16} /> Cheat Sheet
             </button>
           </div>
 
           <div className="flex-grow p-6 overflow-y-auto custom-scrollbar">
             {activeTab === 'theory' && (
-              <div className="prose prose-invert max-w-none">
-                <h1>Understanding the Algorithm</h1>
-                <p>This is a placeholder for the rich markdown content explaining the theory behind the algorithm. Real implementation would fetch this from a database or markdown file based on the topicId and lessonId.</p>
-                <h3>Time Complexity</h3>
-                <ul>
-                  <li><strong>Best Case:</strong> O(1)</li>
-                  <li><strong>Average Case:</strong> O(log N)</li>
-                  <li><strong>Worst Case:</strong> O(N)</li>
-                </ul>
+              <div className="max-w-none space-y-8">
+                <div className="prose prose-invert">
+                  <h1>Understanding Arrays</h1>
+                  <p className="text-lg text-gray-300">An array is a collection of items stored at contiguous memory locations. The idea is to store multiple items of the same type together.</p>
+                  <p>This makes it easier to calculate the position of each element by simply adding an offset to a base value, i.e., the memory location of the first element of the array.</p>
+                </div>
+                <ComplexityVisualizer 
+                  timeComplexity="1" 
+                  spaceComplexity="n" 
+                  explanation="Accessing an element is O(1) because elements are stored contiguously in memory. We just calculate the memory address: base_address + (index * size_of_element). However, space is O(n) where n is the number of elements." 
+                />
               </div>
             )}
             {activeTab === 'visualizer' && (
@@ -64,11 +73,40 @@ export function LessonWorkspace({ topicId, lessonId }: LessonWorkspaceProps) {
                 {renderVisualizer()}
               </div>
             )}
-            {activeTab === 'notes' && (
+            {activeTab === 'quiz' && (
+              <div className="w-full h-full flex flex-col pt-8">
+                <InteractiveQuiz 
+                  question="What is the time complexity of accessing an element in an array by its index?"
+                  options={[
+                    { id: 'a', text: 'O(1)' },
+                    { id: 'b', text: 'O(log n)' },
+                    { id: 'c', text: 'O(n)' },
+                    { id: 'd', text: 'O(n^2)' }
+                  ]}
+                  correctAnswerId="a"
+                  explanation="Arrays store elements contiguously in memory, which allows for O(1) direct access by calculating the memory address."
+                />
+              </div>
+            )}
+            {activeTab === 'cheatsheet' && (
               <div className="w-full h-full flex flex-col">
-                <textarea 
-                  className="flex-grow w-full bg-[var(--color-surface-elevated)] border border-[var(--color-border-glass)] rounded-xl p-4 text-gray-300 resize-none focus:outline-none focus:border-[var(--color-accent-emerald)] font-mono text-sm" 
-                  placeholder="Take your markdown notes here... They will be saved to your profile."
+                <RevisionSheet 
+                  topic="Arrays"
+                  definitions={[
+                    { term: "Contiguous Memory", definition: "Memory blocks placed consecutively side-by-side." },
+                    { term: "Index", definition: "The numerical position of an element in the array." }
+                  ]}
+                  complexities={[
+                    { operation: "Access", time: "1", space: "1" },
+                    { operation: "Search", time: "n", space: "1" },
+                    { operation: "Insertion", time: "n", space: "1" }
+                  ]}
+                  patterns={["Two Pointers", "Sliding Window", "Prefix Sum"]}
+                  tips={[
+                    "Always check for out of bounds errors.",
+                    "Many array problems can be solved by sorting first.",
+                    "If a problem requires O(n) time and O(1) space, consider Two Pointers."
+                  ]}
                 />
               </div>
             )}
@@ -136,18 +174,8 @@ export function LessonWorkspace({ topicId, lessonId }: LessonWorkspaceProps) {
                   </button>
                 </div>
                 
-                <div className="flex-grow p-4 overflow-y-auto custom-scrollbar flex flex-col gap-4">
-                  <div className="bg-[var(--color-surface-elevated)] p-3 rounded-lg rounded-tl-none self-start max-w-[85%] text-sm text-gray-300">
-                    Hello! I'm your personal AI Tutor. I can help explain the current topic, simplify concepts, or generate a quick quiz. What would you like to know?
-                  </div>
-                </div>
-                
-                <div className="p-4 border-t border-[var(--color-border-glass)]">
-                  <input 
-                    type="text" 
-                    placeholder="Ask 'Explain like I'm 10'..." 
-                    className="w-full bg-[#101827] border border-[var(--color-border-glass)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-accent-violet)] text-white"
-                  />
+                <div className="flex-grow p-0 overflow-y-auto custom-scrollbar flex flex-col">
+                  <AITutor contextTopic={topicId} />
                 </div>
               </motion.div>
             </Panel>
