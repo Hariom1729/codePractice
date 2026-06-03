@@ -21,7 +21,11 @@ export type SectionType =
   | 'advanced'
   | 'cheatsheet'
   | 'quiz'
-  | 'practice';
+  | 'practice'
+  | 'two-pointers'
+  | 'sliding-window'
+  | 'string-hashing'
+  | 'pattern-matching';
 
 export interface CodeExample {
   language: 'javascript' | 'python' | 'cpp' | 'java';
