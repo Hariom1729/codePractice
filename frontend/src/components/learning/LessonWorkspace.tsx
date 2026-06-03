@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
-import MonacoCodeEditor from '@/components/MonacoCodeEditor';
 import { Play, Terminal, Bot, BookOpen, ChevronRight, CheckCircle2, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrayVisualizer } from '@/components/visualizers/ArrayVisualizer';
@@ -19,8 +18,6 @@ interface LessonWorkspaceProps {
 }
 
 export function LessonWorkspace({ topicId, lessonId }: LessonWorkspaceProps) {
-  const [language, setLanguage] = useState('javascript');
-  const [code, setCode] = useState('// Write your implementation here\n\nfunction solve() {\n  \n}');
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'theory' | 'visualizer' | 'quiz' | 'cheatsheet'>('theory');
 
@@ -35,7 +32,7 @@ export function LessonWorkspace({ topicId, lessonId }: LessonWorkspaceProps) {
       <PanelGroup orientation="horizontal">
         
         {/* LEFT PANE: Theory & Visuals */}
-        <Panel defaultSize={45} minSize={30} className="flex flex-col bg-[var(--color-surface-obsidian)] m-2 rounded-xl border border-[var(--color-border-glass)] overflow-hidden relative">
+        <Panel defaultSize={aiPanelOpen ? 70 : 100} minSize={50} className="flex flex-col bg-[var(--color-surface-obsidian)] m-2 rounded-xl border border-[var(--color-border-glass)] overflow-hidden relative">
           
           {/* Tabs */}
           <div className="flex items-center gap-1 p-2 border-b border-[var(--color-border-glass)] bg-white/[0.02] overflow-x-auto custom-scrollbar whitespace-nowrap">
@@ -111,45 +108,6 @@ export function LessonWorkspace({ topicId, lessonId }: LessonWorkspaceProps) {
               </div>
             )}
           </div>
-        </Panel>
-
-        <PanelResizeHandle className="w-1.5 hover:bg-[var(--color-accent-indigo)] transition-colors cursor-col-resize rounded-full my-4" />
-
-        {/* MIDDLE PANE: Code Playground */}
-        <Panel minSize={30} className="flex flex-col m-2 rounded-xl overflow-hidden shadow-2xl">
-          <PanelGroup orientation="vertical">
-            <Panel defaultSize={70} minSize={30} className="flex flex-col relative border border-[var(--color-border-glass)] rounded-t-xl bg-[var(--color-surface-obsidian)]">
-              <div className="h-14 flex items-center justify-between px-4 border-b border-[var(--color-border-glass)] bg-white/[0.02]">
-                <select 
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="bg-[var(--color-surface-elevated)] text-gray-300 border border-[var(--color-border-glass)] rounded px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--color-accent-blue)]"
-                >
-                  <option value="javascript">JavaScript</option>
-                  <option value="python">Python</option>
-                  <option value="cpp">C++</option>
-                  <option value="java">Java</option>
-                </select>
-                <button className="px-6 py-1.5 flex items-center gap-2 bg-[var(--color-accent-emerald)]/20 text-[var(--color-accent-emerald)] border border-[var(--color-accent-emerald)]/50 rounded font-semibold hover:bg-[var(--color-accent-emerald)]/30 transition-colors">
-                  <Play size={14} /> Run Code
-                </button>
-              </div>
-              <div className="flex-grow relative">
-                <MonacoCodeEditor code={code} setCode={setCode} language={language} />
-              </div>
-            </Panel>
-
-            <PanelResizeHandle className="h-1.5 hover:bg-[var(--color-accent-blue)] transition-colors cursor-row-resize rounded-full mx-2" />
-
-            <Panel defaultSize={30} minSize={15} className="flex flex-col border border-[var(--color-border-glass)] rounded-b-xl bg-[#080b13]">
-              <div className="px-4 py-2 border-b border-[var(--color-border-glass)] bg-white/[0.02] text-gray-400 text-sm font-semibold flex items-center gap-2">
-                <Terminal size={14} /> Output
-              </div>
-              <div className="p-4 overflow-y-auto custom-scrollbar flex-grow text-gray-300 text-sm whitespace-pre-wrap font-mono">
-                <span className="text-gray-600">Execute code to see output...</span>
-              </div>
-            </Panel>
-          </PanelGroup>
         </Panel>
 
         {aiPanelOpen ? <PanelResizeHandle className="w-1.5 hover:bg-[var(--color-accent-violet)] transition-colors cursor-col-resize rounded-full my-4" /> : null}
