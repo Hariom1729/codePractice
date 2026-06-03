@@ -10,7 +10,7 @@ export function RevisionHub({ data }: { data: RevisionHubData }) {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-12 pb-24 print:space-y-6 print:text-black print:pb-0">
+    <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} className="w-full max-w-5xl mx-auto space-y-12 pb-24 print:space-y-6 print:text-black print:pb-0">
       
       {/* HEADER / DOWNLOAD BUTTON */}
       <div className="flex items-center justify-between border-b border-[var(--color-border-glass)] pb-6 print:hidden">
@@ -241,6 +241,6 @@ export function RevisionHub({ data }: { data: RevisionHubData }) {
         </div>
       </section>
 
-    </div>
+    </motion.div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Clock } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface SectionNavItem {
   id: string;
@@ -65,7 +66,9 @@ export function SectionNav({
 
             return (
               <li key={section.id}>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => onSectionChange(section.id)}
                   className={`
                     w-full flex items-start gap-3 px-3 py-2.5 rounded-lg
@@ -123,7 +126,7 @@ export function SectionNav({
                   {isActive && !isCompleted && (
                     <div className="flex-shrink-0 w-2 h-2 rounded-full bg-[var(--color-accent-violet)] animate-pulse mt-1.5" />
                   )}
-                </button>
+                </motion.button>
               </li>
             );
           })}

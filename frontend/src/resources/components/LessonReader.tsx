@@ -187,7 +187,9 @@ export function LessonReader({ topicId, topicContent }: LessonReaderProps) {
         <div className="flex-shrink-0 border-t border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)]/80 backdrop-blur-md">
           <div className="flex items-center justify-between px-6 py-4">
             {/* Previous */}
-            <button
+            <motion.button
+              whileHover={hasPrev ? { scale: 1.05 } : {}}
+              whileTap={hasPrev ? { scale: 0.95 } : {}}
               onClick={handlePrev}
               disabled={!hasPrev}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
@@ -199,7 +201,7 @@ export function LessonReader({ topicId, topicContent }: LessonReaderProps) {
               <ChevronLeft size={16} />
               <span className="hidden sm:inline">Previous Section</span>
               <span className="sm:hidden">Prev</span>
-            </button>
+            </motion.button>
 
             {/* Progress counter */}
             <div className="flex flex-col items-center gap-1">
@@ -220,7 +222,9 @@ export function LessonReader({ topicId, topicContent }: LessonReaderProps) {
             </div>
 
             {/* Next */}
-            <button
+            <motion.button
+              whileHover={hasNext ? { scale: 1.05 } : {}}
+              whileTap={hasNext ? { scale: 0.95 } : {}}
               onClick={handleNext}
               disabled={!hasNext}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
@@ -232,7 +236,7 @@ export function LessonReader({ topicId, topicContent }: LessonReaderProps) {
               <span className="hidden sm:inline">Next Section</span>
               <span className="sm:hidden">Next</span>
               <ChevronRight size={16} />
-            </button>
+            </motion.button>
           </div>
         </div>
       </main>
