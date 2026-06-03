@@ -133,6 +133,18 @@ export interface TableData {
   rows: string[][];
 }
 
+export interface RevisionHubData {
+  topicSummary: { definition: string[]; whyImportant: string[] };
+  keyConcepts: { title: string; description: string; icon?: string }[];
+  operationsTable: { operation: string; complexity: string; note?: string }[];
+  methodsCheatSheet: { category: string; methods: { method: string; purpose: string; complexity: string; example: string }[] }[];
+  patternSummary: { category: string; patterns: { name: string; whenToUse: string; explanation: string; difficulty: string }[] }[];
+  commonQuestions: { title: string; difficulty: string; patternUsed: string; frequency: 'High' | 'Medium' | 'Low' }[];
+  commonMistakes: { title: string; description: string }[];
+  interviewCrashNotes: { category: string; notes: string[] }[];
+  finalQuiz: QuizQuestion[];
+}
+
 export interface SectionContent {
   prose?: string[];
   hook?: HookBlock;
@@ -154,6 +166,7 @@ export interface SectionContent {
   keyPoints?: string[]; // Deprecated, use takeaways
   tableData?: TableData[];
   interactiveVisualizer?: 'array';
+  revisionHub?: RevisionHubData;
 }
 
 export interface Section {

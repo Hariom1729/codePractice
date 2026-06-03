@@ -30,6 +30,7 @@ import {
   RecruiterCard,
   Takeaways,
 } from "./VisualBlocks";
+import { RevisionHub } from "./RevisionHub";
 
 // --------------- Helper types ---------------
 
@@ -526,7 +527,21 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
     );
   }
 
-  const content = section.content ?? {};
+  const content = section.content;
+
+  if (content.revisionHub) {
+    return (
+      <motion.div
+        key={section.id}
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -15 }}
+        transition={{ duration: 0.3 }}
+      >
+        <RevisionHub data={content.revisionHub} />
+      </motion.div>
+    );
+  }
 
   return (
     <motion.article

@@ -472,22 +472,127 @@ s.indexOf("o");       // O(N*M) - Returns index of first occurrence`,
       icon: '🎯',
       estimatedTime: '5 min',
       content: {
-        keyIdea: {
-          title: "The Ultimate String Summary",
-          description: "Strings are character arrays. Immutability forces copies. Use Two Pointers for symmetry and Sliding Windows for substrings."
-        },
-        complexityTable: [
-          { operation: 'Access arr[i]', best: 'O(1)', average: 'O(1)', worst: 'O(1)', space: 'O(1)', notes: 'Direct memory' },
-          { operation: 'Concatenation', best: 'O(N+M)', average: 'O(N+M)', worst: 'O(N+M)', space: 'O(N+M)', notes: 'Creates new string copy' },
-          { operation: 'Substring', best: 'O(K)', average: 'O(K)', worst: 'O(K)', space: 'O(K)', notes: 'K is length of substring' },
-          { operation: 'Naive Search', best: 'O(N)', average: 'O(N*M)', worst: 'O(N*M)', space: 'O(1)', notes: 'M is pattern length' },
-          { operation: 'KMP Search', best: 'O(N+M)', average: 'O(N+M)', worst: 'O(N+M)', space: 'O(M)', notes: 'Never moves backwards' }
-        ],
-        takeaways: [
-          "Always clarify if strings are ASCII (array[128]) or Unicode (Hash Map).",
-          "Never concatenate strings in a loop in immutable languages.",
-          "Two pointers and Sliding Windows reduce O(N²) string problems to O(N)."
-        ]
+        revisionHub: {
+          topicSummary: {
+            definition: [
+              "Collection of characters stored in contiguous memory",
+              "Backed by arrays under the hood",
+              "Immutable in Java/JS/Python, Mutable in C++",
+              "Encoded using ASCII (1 byte) or UTF-8 (variable length)"
+            ],
+            whyImportant: [
+              "The most common data type in all of programming",
+              "Foundation for parsing URLs, JSON, and network payloads",
+              "Appears in 80%+ of FAANG coding interviews",
+              "Essential for understanding advanced Tree/Graph problems like Tries"
+            ]
+          },
+          keyConcepts: [
+            { title: "Immutability", description: "Once created, strings cannot be changed in languages like JS/Python. Appending creates a O(N) copy.", icon: "🧊" },
+            { title: "Contiguous Memory", description: "Characters sit right next to each other, making CPU cache extremely happy.", icon: "📦" },
+            { title: "O(1) Access", description: "You can instantly access any character using its index (e.g., str[5]).", icon: "⚡" },
+            { title: "Encodings", description: "Characters are just integers. 'A' is 65, 'a' is 97 in ASCII.", icon: "🔢" }
+          ],
+          operationsTable: [
+            { operation: "Access str[i]", complexity: "O(1)", note: "Direct memory calculation" },
+            { operation: "Search (Naive)", complexity: "O(N*M)", note: "N=text length, M=pattern length" },
+            { operation: "Search (KMP)", complexity: "O(N+M)", note: "Optimal pattern matching" },
+            { operation: "Concatenation (+)", complexity: "O(N+M)", note: "Creates new copy in immutable languages" },
+            { operation: "Substring", complexity: "O(K)", note: "K is length of the extracted substring" }
+          ],
+          methodsCheatSheet: [
+            {
+              category: "Python Methods",
+              methods: [
+                { method: "s.split(' ')", purpose: "Splits string by delimiter into array", complexity: "O(N)", example: "['Hello', 'World']" },
+                { method: "'-'.join(arr)", purpose: "Joins array into string", complexity: "O(N)", example: "'a-b'" },
+                { method: "s.replace(old, new)", purpose: "Replaces substring occurrences", complexity: "O(N)", example: "s.replace('A', 'B')" },
+                { method: "s.find(sub)", purpose: "Returns first index of substring", complexity: "O(N*M)", example: "index = s.find('abc')" }
+              ]
+            },
+            {
+              category: "JavaScript Methods",
+              methods: [
+                { method: "s.slice(start, end)", purpose: "Extracts a section (end exclusive)", complexity: "O(K)", example: "s.slice(2, 5)" },
+                { method: "s.split('')", purpose: "Converts string to character array", complexity: "O(N)", example: "['h', 'i']" },
+                { method: "s.includes(sub)", purpose: "Checks if substring exists", complexity: "O(N*M)", example: "true/false" },
+                { method: "s.trim()", purpose: "Removes leading/trailing whitespace", complexity: "O(N)", example: "' hello '.trim()" }
+              ]
+            },
+            {
+              category: "C++ Methods",
+              methods: [
+                { method: "s.substr(start, len)", purpose: "Extracts substring of length len", complexity: "O(K)", example: "s.substr(2, 5)" },
+                { method: "s.push_back('a')", purpose: "Appends single char to end", complexity: "O(1)", example: "Modifies in-place!" },
+                { method: "s.find(sub)", purpose: "Finds index", complexity: "O(N*M)", example: "Returns string::npos if missing" },
+                { method: "s.size()", purpose: "Returns length", complexity: "O(1)", example: "Length cache" }
+              ]
+            }
+          ],
+          patternSummary: [
+            {
+              category: "Core Patterns",
+              patterns: [
+                { name: "Sliding Window", whenToUse: "Longest/Shortest continuous substring matching a condition.", explanation: "Expand Right to add, shrink Left to fix invalid states.", difficulty: "Medium" },
+                { name: "Two Pointers", whenToUse: "Checking symmetry (Palindromes) or reversing strings.", explanation: "Place Left at 0, Right at end. Move inward.", difficulty: "Easy" },
+                { name: "Frequency Map", whenToUse: "Checking Anagrams or character counts.", explanation: "Use int[26] array or Hash Map to count occurrences.", difficulty: "Easy" }
+              ]
+            },
+            {
+              category: "Advanced Algorithms",
+              patterns: [
+                { name: "String Hashing", whenToUse: "Fast multiple substring comparisons.", explanation: "Compute rolling integer hash in O(1) time. Beware collisions.", difficulty: "Hard" },
+                { name: "KMP / Z-Algo", whenToUse: "Optimal exact pattern matching in massive texts.", explanation: "Precomputes prefix/suffix table to skip redundant checks.", difficulty: "Expert" }
+              ]
+            }
+          ],
+          commonQuestions: [
+            { title: "Valid Anagram", difficulty: "Easy", patternUsed: "Frequency Array [26]", frequency: "High" },
+            { title: "Longest Substring Without Repeating", difficulty: "Medium", patternUsed: "Sliding Window + Set", frequency: "High" },
+            { title: "Group Anagrams", difficulty: "Medium", patternUsed: "Sorting + Hash Map", frequency: "High" },
+            { title: "Valid Palindrome", difficulty: "Easy", patternUsed: "Two Pointers", frequency: "Medium" },
+            { title: "Minimum Window Substring", difficulty: "Hard", patternUsed: "Sliding Window + 2 Maps", frequency: "High" },
+            { title: "Implement strStr()", difficulty: "Medium", patternUsed: "Rabin Karp / KMP", frequency: "Low" }
+          ],
+          commonMistakes: [
+            { title: "Concatenation in Loops", description: "Doing `s += 'a'` in Java/Python creates a O(N^2) time complexity explosion. Use StringBuilder or array.join() instead." },
+            { title: "Confusing Substring bounds", description: "Remember that `slice(start, end)` usually excludes the `end` index." },
+            { title: "Ignoring ASCII vs Unicode", description: "Don't assume `char_count = new int[128]` works if the input contains emojis or foreign characters!" },
+            { title: "Sliding Window Shrink Logic", description: "Using `if` instead of `while` when shrinking the window. Multiple characters might need to be removed!" }
+          ],
+          interviewCrashNotes: [
+            {
+              category: "The Essentials",
+              notes: [
+                "Clarify if the charset is ASCII (128) or Unicode.",
+                "Never modify strings in-place in Python/Java/JS.",
+                "To map 'a' to index 0, do `char - 'a'`."
+              ]
+            },
+            {
+              category: "Algorithm Defaults",
+              notes: [
+                "Substrings = Sliding Window.",
+                "Palindromes = Two Pointers (Expand from center or outside-in).",
+                "Anagrams = Sort the string OR use int[26] frequency map."
+              ]
+            }
+          ],
+          finalQuiz: [
+            {
+              id: "q1",
+              question: "What is the time complexity of concatenating two strings of length N and M in Python/Java?",
+              options: [
+                { id: "a", text: "O(1)" },
+                { id: "b", text: "O(N)" },
+                { id: "c", text: "O(N + M)" },
+                { id: "d", text: "O(M)" }
+              ],
+              correctId: "c",
+              explanation: "Because strings are immutable, memory must be allocated for the combined length, and both strings are copied over."
+            }
+          ]
+        }
       }
     }
   ]
