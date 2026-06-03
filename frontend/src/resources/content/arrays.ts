@@ -834,69 +834,104 @@ function maxCircularSum(nums) {
       icon: '📄',
       estimatedTime: '10 min',
       content: {
-        prose: [
-          'Your one-page quick reference for Arrays. Covers all complexities, essential methods, and the 7 most important patterns at a glance.',
-        ],
-        keyPoints: [
-          '⚡ Access: O(1) — best in class, use arrays when you need random access',
-          '🔍 Linear Search: O(n) — check every element; works on unsorted arrays',
-          '🔍 Binary Search: O(log n) — requires sorted array; HUGE speedup for large n',
-          '➕ Insert/Delete at END: O(1) — use arrays as stacks',
-          '➕ Insert/Delete at START/MIDDLE: O(n) — avoid in hot loops',
-          '📝 sort(): O(n log n) — always pass a comparator for numbers in JS!',
-          '🗺️ Memory formula: address(i) = base + i × sizeof(element)',
-          '🧩 Pattern: Two Pointers → sorted array, pair sum, palindrome',
-          '🧩 Pattern: Sliding Window → subarray problems, fixed or variable window',
-          '🧩 Pattern: Prefix Sum → range sum in O(1) after O(n) build',
-          "🧩 Pattern: Kadane's → maximum subarray sum, O(n)",
-          '🧩 Pattern: Dutch National Flag → 3-way partition in O(n)',
-          '🧩 Pattern: Merge Intervals → sort by start, greedily merge',
-          '🧩 Pattern: Difference Array → range updates in O(1), finalize in O(n)',
-        ],
-        tableData: [
-          {
-            headers: ['Operation', 'Best', 'Average', 'Worst', 'Space'],
-            rows: [
-              ['Access', 'O(1)', 'O(1)', 'O(1)', 'O(1)'],
-              ['Search (Linear)', 'O(1)', 'O(n)', 'O(n)', 'O(1)'],
-              ['Search (Binary)', 'O(1)', 'O(log n)', 'O(log n)', 'O(1)'],
-              ['Insert (End)', 'O(1)', 'O(1)', 'O(n)', 'O(1)'],
-              ['Insert (Middle/Start)', 'O(n)', 'O(n)', 'O(n)', 'O(1)'],
-              ['Delete (End)', 'O(1)', 'O(1)', 'O(1)', 'O(1)'],
-              ['Delete (Middle/Start)', 'O(n)', 'O(n)', 'O(n)', 'O(1)'],
-              ['Sort', 'O(n log n)', 'O(n log n)', 'O(n log n)', 'O(log n)'],
+        revisionHub: {
+          topicSummary: {
+            definition: [
+              "Collection of same type elements",
+              "Stored in contiguous memory",
+              "Indexed starting from 0",
+              "O(1) random access"
             ],
+            whyImportant: [
+              "Foundation of most DSA concepts",
+              "Used in almost every interview",
+              "Required for advanced patterns"
+            ]
           },
-          {
-            headers: ['Pattern', 'When to Use', 'Time', 'Space'],
-            rows: [
-              ['Two Pointers', 'Pair sum on sorted arr, palindrome, remove dups', 'O(n)', 'O(1)'],
-              ['Sliding Window (Fixed)', 'Max/min of k-size subarray', 'O(n)', 'O(1)'],
-              ['Sliding Window (Variable)', 'Longest subarray with constraint', 'O(n)', 'O(1)'],
-              ['Prefix Sum', 'Range sum queries, subarray sum = K', 'O(n+q)', 'O(n)'],
-              ["Kadane's", 'Max subarray sum', 'O(n)', 'O(1)'],
-              ['Dutch National Flag', '3-way partition (0s/1s/2s)', 'O(n)', 'O(1)'],
-              ['Merge Intervals', 'Overlapping intervals', 'O(n log n)', 'O(n)'],
-            ],
-          },
-        ],
-        callouts: [
-          {
-            type: 'important',
-            title: '#1 Interview Tip',
-            body: 'Always sort the array if you\'re stuck on an O(n²) brute force. Sorting costs O(n log n) but often enables O(n) or O(log n) solutions, making the total O(n log n) which is much better.',
-          },
-          {
-            type: 'tip',
-            title: '#2 Interview Tip',
-            body: 'Before writing any code, state the time and space complexity of your approach. "I think this is O(n) time and O(1) space because..." shows interviewers you think analytically.',
-          },
-          {
-            type: 'note',
-            title: '#3 Interview Tip',
-            body: 'When using Two Pointers on an unsorted array, use a Hash Map instead. Two Pointers requires sorted order; Hash Map works on arbitrary order. Both achieve O(n) for pair-sum problems.',
-          },
-        ],
+          keyConcepts: [
+            { title: "Contiguous Memory", description: "Elements stored next to each other.", icon: "📦" },
+            { title: "O(1) Access", description: "Direct access using index.", icon: "⚡" },
+            { title: "Indexed Structure", description: "Access using position.", icon: "🔢" },
+            { title: "Cache Friendly", description: "Faster CPU performance.", icon: "🚀" }
+          ],
+          operationsTable: [
+            { operation: "Access", complexity: "O(1)" },
+            { operation: "Search", complexity: "O(n)" },
+            { operation: "Insert End", complexity: "O(1)" },
+            { operation: "Insert Middle", complexity: "O(n)" },
+            { operation: "Delete", complexity: "O(n)" }
+          ],
+          methodsCheatSheet: [
+            {
+              category: "Arrays / Vector",
+              methods: [
+                { method: "push_back()", purpose: "Add to end", complexity: "O(1)", example: "arr.push_back(5)" },
+                { method: "pop_back()", purpose: "Remove from end", complexity: "O(1)", example: "arr.pop_back()" },
+                { method: "insert()", purpose: "Add at index", complexity: "O(n)", example: "arr.insert(arr.begin()+1, 10)" },
+                { method: "erase()", purpose: "Remove at index", complexity: "O(n)", example: "arr.erase(arr.begin()+1)" },
+                { method: "size()", purpose: "Get number of elements", complexity: "O(1)", example: "arr.size()" },
+                { method: "capacity()", purpose: "Get allocated memory size", complexity: "O(1)", example: "arr.capacity()" },
+                { method: "resize()", purpose: "Change element count", complexity: "O(n)", example: "arr.resize(10)" },
+                { method: "reserve()", purpose: "Allocate memory ahead of time", complexity: "O(n)", example: "arr.reserve(100)" }
+              ]
+            }
+          ],
+          patternSummary: [
+            {
+              category: "Array Patterns",
+              patterns: [
+                { name: "Sliding Window", whenToUse: "Subarray sums or conditions", explanation: "Maintain a window that satisfies constraints", difficulty: "Medium" },
+                { name: "Two Pointers", whenToUse: "Sorted arrays or pair hunting", explanation: "Pointers at opposite ends moving inward", difficulty: "Easy" },
+                { name: "Prefix Sum", whenToUse: "Range sum queries", explanation: "Precompute cumulative sums", difficulty: "Medium" },
+                { name: "Kadane", whenToUse: "Maximum subarray sum", explanation: "Keep a running max and global max", difficulty: "Medium" },
+                { name: "Binary Search", whenToUse: "Sorted arrays, finding target", explanation: "Divide search space in half", difficulty: "Easy" },
+                { name: "Hashing", whenToUse: "Frequency counting or lookups", explanation: "Use HashMap for O(1) checks", difficulty: "Easy" }
+              ]
+            }
+          ],
+          commonQuestions: [
+            { title: "Two Sum", difficulty: "Easy", patternUsed: "Hashing", frequency: "High" },
+            { title: "Best Time to Buy Stock", difficulty: "Easy", patternUsed: "Kadane / One Pass", frequency: "High" },
+            { title: "Maximum Subarray", difficulty: "Medium", patternUsed: "Kadane", frequency: "High" },
+            { title: "Product Except Self", difficulty: "Medium", patternUsed: "Prefix Arrays", frequency: "High" },
+            { title: "Merge Intervals", difficulty: "Medium", patternUsed: "Sorting", frequency: "High" }
+          ],
+          commonMistakes: [
+            { title: "Off-by-One Errors", description: "Looping to i <= n instead of i < n." },
+            { title: "Index Out of Bounds", description: "Accessing arr[arr.length] instead of arr[arr.length - 1]." },
+            { title: "Wrong Sliding Window Logic", description: "Shrinking the window at the wrong time." },
+            { title: "Incorrect Substring Range", description: "Using fixed bounds instead of dynamic variables." },
+            { title: "Ignoring Edge Cases", description: "Failing on empty arrays or arrays with one element." }
+          ],
+          interviewCrashNotes: [
+            {
+              category: "Arrays Crash Notes",
+              notes: [
+                "Contiguous memory allows for extremely fast iterations.",
+                "O(1) access makes it ideal for lookup tables.",
+                "O(n) search requires full traversal if unsorted.",
+                "Use Sliding Window for contiguous subarrays.",
+                "Use Prefix Sum for rapid range queries.",
+                "Use Kadane's for max subarray problems.",
+                "Use Two Pointers for sorted pair hunting."
+              ]
+            }
+          ],
+          finalQuiz: [
+            {
+              id: "q1",
+              question: "What is the time complexity of accessing an element in an array by index?",
+              options: [
+                { id: "a", text: "O(1)" },
+                { id: "b", text: "O(n)" },
+                { id: "c", text: "O(log n)" },
+                { id: "d", text: "O(n^2)" }
+              ],
+              correctId: "a",
+              explanation: "Arrays support O(1) random access because they are stored in contiguous memory and the address can be calculated directly."
+            }
+          ]
+        }
       },
     },
 
