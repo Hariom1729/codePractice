@@ -519,6 +519,20 @@ const sectionVariants = {
 export function ContentRenderer({ section, topicId }: ContentRendererProps) {
   const [activeLangTab, setActiveLangTab] = useState(0);
 
+  const renderParagraphs = (
+    text: string | string[],
+    textClass: string = "text-gray-200 leading-relaxed text-base mb-4 font-normal"
+  ) => {
+    if (Array.isArray(text)) {
+      return text.map((para: string, i: number) => (
+        <p key={i} className={textClass}>
+          {para}
+        </p>
+      ));
+    }
+    return <p className={textClass}>{text}</p>;
+  };
+
   if (!section) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500">
@@ -578,7 +592,7 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
                   <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)]/80 relative overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-accent-cyan)]/5 rounded-full blur-3xl" />
                     <span className="text-xs font-bold text-[var(--color-accent-cyan)] uppercase tracking-widest block mb-2">💡 Core Concept</span>
-                    <p className="text-lg text-gray-100 font-medium leading-relaxed mb-6">{block.text}</p>
+                    <div className="mb-6">{renderParagraphs(block.text, "text-lg text-gray-100 font-medium leading-relaxed mb-4")}</div>
                     <div className="p-4 rounded-2xl bg-black/40 border border-white/[0.04] flex items-center justify-center">
                       <div className="flex gap-2 items-center text-sm font-mono">
                         <span className="text-gray-500">Array:</span>
@@ -599,7 +613,7 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
                 return (
                   <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/30 space-y-4">
                     <span className="text-xs font-bold text-[var(--color-accent-emerald)] uppercase tracking-widest block">🌍 Real-World Mapping</span>
-                    <p className="text-gray-300 leading-relaxed">{block.text}</p>
+                    <div className="my-2">{renderParagraphs(block.text, "text-gray-300 leading-relaxed mb-3")}</div>
                     <div className="p-4 rounded-xl border border-white/[0.04] bg-[#0c0c0e]">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">🎵</span>
@@ -662,7 +676,7 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
               if (block.type === 'concept') {
                 return (
                   <div key={idx} className="space-y-4">
-                    <p className="text-gray-300 leading-relaxed">{block.text}</p>
+                    <div>{renderParagraphs(block.text, "text-gray-300 leading-relaxed mb-3")}</div>
                     <div className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)] relative">
                       <div className="flex items-center justify-between mb-4">
                         <span className="text-xs font-bold text-[var(--color-accent-cyan)] uppercase tracking-widest">Before Operations</span>
@@ -719,7 +733,7 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
               if (block.type === 'concept') {
                 return (
                   <div key={idx} className="space-y-4">
-                    <p className="text-gray-300 leading-relaxed">{block.text}</p>
+                    <div>{renderParagraphs(block.text, "text-gray-300 leading-relaxed mb-3")}</div>
 
                     {/* Circular visual track or slow-fast pointers */}
                     <div className="p-8 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)] shadow-2xl relative">
@@ -763,7 +777,7 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
               if (block.type === 'concept') {
                 return (
                   <div key={idx} className="space-y-4">
-                    <p className="text-gray-300 leading-relaxed">{block.text}</p>
+                    <div>{renderParagraphs(block.text, "text-gray-300 leading-relaxed mb-3")}</div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {block.visual.data?.map((pattern: any, pIdx: number) => (
                         <div key={pIdx} className="p-5 rounded-2xl border border-white/[0.04] bg-[var(--color-surface-elevated)]/30 hover:border-[var(--color-accent-cyan)]/30 transition-colors">
@@ -859,9 +873,9 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
                   <div key={idx} className="space-y-4">
                     <div className="flex items-start gap-2.5">
                       <span className="text-xl">💡</span>
-                      <p className="text-gray-200 leading-relaxed text-base font-medium">
-                        {block.text}
-                      </p>
+                      <div className="text-gray-200 leading-relaxed text-base font-medium">
+                        {renderParagraphs(block.text, "mb-3")}
+                      </div>
                     </div>
                     {/* Visual Asset representation */}
                     <div className="p-6 rounded-2xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/30 backdrop-blur-sm relative overflow-hidden group hover:border-[var(--color-accent-violet)]/30 transition-colors">
@@ -926,9 +940,9 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
                   <div key={idx} className="space-y-4">
                     <div className="flex items-start gap-2.5">
                       <span className="text-xl">⚙️</span>
-                      <p className="text-gray-200 leading-relaxed text-base">
-                        {block.text}
-                      </p>
+                      <div className="text-gray-200 leading-relaxed text-base">
+                        {renderParagraphs(block.text, "mb-3")}
+                      </div>
                     </div>
                     {/* Stepper Steps UI */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -946,9 +960,9 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
                   <div key={idx} className="space-y-4">
                     <div className="flex items-start gap-2.5">
                       <span className="text-xl">⚡</span>
-                      <p className="text-gray-200 leading-relaxed text-base">
-                        {block.text}
-                      </p>
+                      <div className="text-gray-200 leading-relaxed text-base">
+                        {renderParagraphs(block.text, "mb-3")}
+                      </div>
                     </div>
                     {/* Premium Complexity Card */}
                     <div className="p-5 rounded-2xl border border-red-500/20 bg-red-500/[0.02] flex items-center justify-between gap-4">
@@ -970,9 +984,9 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
                   <div key={idx} className="space-y-4">
                     <div className="flex items-start gap-2.5">
                       <span className="text-xl">🌍</span>
-                      <p className="text-gray-200 leading-relaxed text-base">
-                        {block.text}
-                      </p>
+                      <div className="text-gray-200 leading-relaxed text-base">
+                        {renderParagraphs(block.text, "mb-3")}
+                      </div>
                     </div>
                     {/* Real World mapping card */}
                     <div className="p-5 rounded-2xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/20">
@@ -989,9 +1003,9 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
                   <div key={idx} className="space-y-4">
                     <div className="flex items-start gap-2.5">
                       <span className="text-xl">🧠</span>
-                      <p className="text-gray-200 leading-relaxed text-base">
-                        {block.text}
-                      </p>
+                      <div className="text-gray-200 leading-relaxed text-base">
+                        {renderParagraphs(block.text, "mb-3")}
+                      </div>
                     </div>
                     {/* Interview Checklist card */}
                     <RecruiterCard data={{ title: 'Interview Checklist', checklist: block.checklist }} />

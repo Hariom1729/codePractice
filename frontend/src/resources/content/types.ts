@@ -175,7 +175,7 @@ export interface StepAnimationBlock {
 
 export interface ConceptBlock {
   type: 'concept';
-  text: string;
+  text: string | string[];
   visual: {
     type: string;
     data?: any;
@@ -184,13 +184,13 @@ export interface ConceptBlock {
 
 export interface InternalWorkingBlock {
   type: 'internal-working';
-  text: string;
+  text: string | string[];
   steps: { title: string; description: string; state?: any }[];
 }
 
 export interface ComplexityBlock {
   type: 'complexity';
-  text: string;
+  text: string | string[];
   operation: string;
   time: string;
   space: string;
@@ -199,7 +199,7 @@ export interface ComplexityBlock {
 
 export interface RealWorldBlock {
   type: 'real-world';
-  text: string;
+  text: string | string[];
   visual: {
     type: string;
     title: string;
@@ -209,7 +209,7 @@ export interface RealWorldBlock {
 
 export interface InterviewInsightBlock {
   type: 'interview-insight';
-  text: string;
+  text: string | string[];
   checklist: string[];
 }
 
