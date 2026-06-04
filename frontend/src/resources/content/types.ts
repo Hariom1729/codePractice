@@ -35,7 +35,10 @@ export type SectionType =
   | 'circular-linked'
   | 'reversal'
   | 'interview-patterns'
-  | 'interview-hub';
+  | 'interview-hub'
+  | 'search-visualizer'
+  | 'cycle-detection'
+  | 'merge-lists';
 
 export interface CodeExample {
   language: 'javascript' | 'python' | 'cpp' | 'java';
@@ -155,6 +158,21 @@ export interface RevisionHubData {
   finalQuiz: QuizQuestion[];
 }
 
+export interface VisualDemoBlock {
+  type: string;
+  title: string;
+  description: string;
+}
+
+export interface InteractiveSimulationBlock {
+  type: string;
+  title: string;
+}
+
+export interface StepAnimationBlock {
+  steps: { title: string; description: string; state: any }[];
+}
+
 export interface SectionContent {
   prose?: string[];
   hook?: HookBlock;
@@ -175,8 +193,11 @@ export interface SectionContent {
   methods?: MethodEntry[];
   keyPoints?: string[]; // Deprecated, use takeaways
   tableData?: TableData[];
-  interactiveVisualizer?: 'array';
+  interactiveVisualizer?: 'array' | 'linked-list';
   revisionHub?: RevisionHubData;
+  visualDemo?: VisualDemoBlock;
+  interactiveSimulation?: InteractiveSimulationBlock;
+  stepAnimation?: StepAnimationBlock;
 }
 
 export interface Section {
