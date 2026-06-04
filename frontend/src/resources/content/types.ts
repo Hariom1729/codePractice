@@ -25,7 +25,17 @@ export type SectionType =
   | 'two-pointers'
   | 'sliding-window'
   | 'string-hashing'
-  | 'pattern-matching';
+  | 'pattern-matching'
+  | 'node-structure'
+  | 'insertion'
+  | 'deletion'
+  | 'traversal'
+  | 'singly-linked'
+  | 'doubly-linked'
+  | 'circular-linked'
+  | 'reversal'
+  | 'interview-patterns'
+  | 'interview-hub';
 
 export interface CodeExample {
   language: 'javascript' | 'python' | 'cpp' | 'java';

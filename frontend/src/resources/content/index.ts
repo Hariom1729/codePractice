@@ -7,6 +7,7 @@
 
 import { arraysContent } from './arrays';
 import { stringsContent } from './strings';
+import { linkedListsContent } from './linkedLists';
 
 // Re-export all types so consumers can import from one place
 export type {
@@ -34,6 +35,7 @@ export type {
 // Re-export content for direct imports
 export { arraysContent } from './arrays';
 export { stringsContent } from './strings';
+export { linkedListsContent } from './linkedLists';
 
 /**
  * Returns the full TopicContent for a given topicId.
@@ -45,8 +47,8 @@ export function getTopicContent(topicId: string) {
   const registry: Record<string, import('./types').TopicContent> = {
     arrays: arraysContent,
     strings: stringsContent,
+    'linked-lists': linkedListsContent,
     // Add more topics here as they are built:
-    // 'linked-lists': linkedListsContent,
     // 'stacks': stacksContent,
   };
 
