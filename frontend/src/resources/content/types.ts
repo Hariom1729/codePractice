@@ -43,8 +43,10 @@ export type SectionType =
 export interface CodeExample {
   language: 'javascript' | 'python' | 'cpp' | 'java';
   code: string;
+  title?: string;
   explanation?: string;
 }
+
 
 export interface ComplexityRow {
   operation: string;

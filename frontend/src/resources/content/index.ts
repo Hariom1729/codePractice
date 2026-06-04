@@ -8,6 +8,8 @@
 import { arraysContent } from './arrays';
 import { stringsContent } from './strings';
 import { linkedListsContent } from './linkedLists';
+import { sortingContent } from './sorting';
+import { stacksQueuesContent } from './stacksQueues';
 
 // Re-export all types so consumers can import from one place
 export type {
@@ -36,6 +38,8 @@ export type {
 export { arraysContent } from './arrays';
 export { stringsContent } from './strings';
 export { linkedListsContent } from './linkedLists';
+export { sortingContent } from './sorting';
+export { stacksQueuesContent } from './stacksQueues';
 
 /**
  * Returns the full TopicContent for a given topicId.
@@ -48,9 +52,10 @@ export function getTopicContent(topicId: string) {
     arrays: arraysContent,
     strings: stringsContent,
     'linked-lists': linkedListsContent,
-    // Add more topics here as they are built:
-    // 'stacks': stacksContent,
+    sorting: sortingContent,
+    'stacks-queues': stacksQueuesContent,
   };
 
   return registry[topicId] ?? null;
 }
+
