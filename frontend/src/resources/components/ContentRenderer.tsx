@@ -576,6 +576,187 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
         <StoryCard data={content.hook} />
       )}
 
+      {/* Block-based curriculum content */}
+      {content.blocks && Array.isArray(content.blocks) && (
+        <div className="space-y-8 mb-8">
+          {content.blocks.map((block: any, idx: number) => {
+            switch (block.type) {
+              case 'concept':
+                return (
+                  <div key={idx} className="space-y-4">
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-xl">💡</span>
+                      <p className="text-gray-200 leading-relaxed text-base font-medium">
+                        {block.text}
+                      </p>
+                    </div>
+                    {/* Visual Asset representation */}
+                    <div className="p-6 rounded-2xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/30 backdrop-blur-sm relative overflow-hidden group hover:border-[var(--color-accent-violet)]/30 transition-colors">
+                      <p className="text-xs uppercase tracking-wider text-[var(--color-accent-cyan)] font-semibold mb-2">
+                        🎮 Visual Representation: {block.visual.type.replace('-', ' ')}
+                      </p>
+                      {/* Premium Visual Demo Sandbox Layout */}
+                      <div className="h-32 flex items-center justify-center border border-white/[0.04] rounded-xl bg-black/40">
+                        {block.visual.type === 'array-vs-linked' && (
+                          <div className="flex flex-col items-center gap-4 text-sm">
+                            <div className="flex gap-1">
+                              <span className="text-gray-400 font-mono">Array:</span>
+                              <span className="px-2 py-1 rounded bg-white/5 border border-white/10 font-mono text-white">[10]</span>
+                              <span className="px-2 py-1 rounded bg-white/5 border border-white/10 font-mono text-white">[20]</span>
+                              <span className="px-2 py-1 rounded bg-white/5 border border-white/10 font-mono text-white">[30]</span>
+                            </div>
+                            <div className="flex gap-2 items-center">
+                              <span className="text-gray-400 font-mono">Linked:</span>
+                              <span className="px-2 py-1 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 font-mono text-white">[10]</span>
+                              <span className="text-gray-500">→</span>
+                              <span className="px-2 py-1 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 font-mono text-white">[20]</span>
+                              <span className="text-gray-500">→</span>
+                              <span className="px-2 py-1 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 font-mono text-white">[30]</span>
+                            </div>
+                          </div>
+                        )}
+                        {block.visual.type === 'node-anatomy' && (
+                          <div className="flex items-center border border-[var(--color-accent-cyan)]/30 rounded-xl bg-[var(--color-accent-cyan)]/5 overflow-hidden font-mono text-sm">
+                            <span className="px-4 py-2 bg-white/5 text-white border-r border-[var(--color-accent-cyan)]/30">Data = 10</span>
+                            <span className="px-4 py-2 text-[var(--color-accent-cyan)] flex items-center gap-1">Next •──►</span>
+                          </div>
+                        )}
+                        {block.visual.type === 'memory-scatter' && (
+                          <div className="flex items-center gap-6 text-xs font-mono">
+                            <div className="p-3 rounded border border-white/5 bg-white/[0.02]">
+                              <p className="text-gray-500">Addr: 1024</p>
+                              <p className="text-white font-bold">Node A (Next: 4096)</p>
+                            </div>
+                            <div className="p-3 rounded border border-white/5 bg-white/[0.02]">
+                              <p className="text-gray-500">Addr: 8092</p>
+                              <p className="text-white font-bold">Node C (Next: Null)</p>
+                            </div>
+                            <div className="p-3 rounded border border-white/5 bg-white/[0.02]">
+                              <p className="text-gray-500">Addr: 4096</p>
+                              <p className="text-white font-bold">Node B (Next: 8092)</p>
+                            </div>
+                          </div>
+                        )}
+                        {/* Fallback visualizer indicator */}
+                        {!['array-vs-linked', 'node-anatomy', 'memory-scatter'].includes(block.visual.type) && (
+                          <div className="flex items-center gap-2 text-gray-400 font-mono text-xs">
+                            <Zap size={14} className="text-[var(--color-accent-violet)] animate-pulse" />
+                            Interactive Diagram: {block.visual.type}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              case 'internal-working':
+                return (
+                  <div key={idx} className="space-y-4">
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-xl">⚙️</span>
+                      <p className="text-gray-200 leading-relaxed text-base">
+                        {block.text}
+                      </p>
+                    </div>
+                    {/* Stepper Steps UI */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {block.steps.map((step: any, sIdx: number) => (
+                        <div key={sIdx} className="p-4 rounded-xl border border-white/[0.04] bg-[#0c0c0e] hover:border-white/[0.08] transition-colors">
+                          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">Step {sIdx + 1}: {step.title}</span>
+                          <p className="text-xs text-gray-400 leading-normal">{step.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              case 'complexity':
+                return (
+                  <div key={idx} className="space-y-4">
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-xl">⚡</span>
+                      <p className="text-gray-200 leading-relaxed text-base">
+                        {block.text}
+                      </p>
+                    </div>
+                    {/* Premium Complexity Card */}
+                    <div className="p-5 rounded-2xl border border-red-500/20 bg-red-500/[0.02] flex items-center justify-between gap-4">
+                      <div>
+                        <span className="text-xs font-bold text-red-400/80 uppercase tracking-wider block mb-1">Time Complexity</span>
+                        <code className="text-2xl font-mono font-black text-red-400">{block.time}</code>
+                        <span className="text-xs text-gray-400 block mt-2">({block.reason})</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-semibold text-gray-500 block">Operation</span>
+                        <span className="text-sm font-bold text-white block mt-0.5">{block.operation}</span>
+                        <span className="text-xs text-gray-400 font-mono block mt-2">Space: {block.space}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              case 'real-world':
+                return (
+                  <div key={idx} className="space-y-4">
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-xl">🌍</span>
+                      <p className="text-gray-200 leading-relaxed text-base">
+                        {block.text}
+                      </p>
+                    </div>
+                    {/* Real World mapping card */}
+                    <div className="p-5 rounded-2xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/20">
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">📍 Real-World Use Case: {block.visual.title}</p>
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                        <span className="p-2 rounded-lg bg-[var(--color-accent-cyan)]/10 text-[var(--color-accent-cyan)]">✨</span>
+                        <p className="text-sm text-gray-300 font-medium">{block.visual.type.replace('-', ' ').toUpperCase()}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              case 'interview-insight':
+                return (
+                  <div key={idx} className="space-y-4">
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-xl">🧠</span>
+                      <p className="text-gray-200 leading-relaxed text-base">
+                        {block.text}
+                      </p>
+                    </div>
+                    {/* Interview Checklist card */}
+                    <RecruiterCard data={{ title: 'Interview Checklist', checklist: block.checklist }} />
+                  </div>
+                );
+              case 'mini-practice':
+                return (
+                  <div key={idx} className="space-y-4">
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-xl">🎯</span>
+                      <div>
+                        <h4 className="text-sm font-bold text-white mb-1">Interactive Sandbox Challenge</h4>
+                        <p className="text-gray-300 text-sm">{block.question}</p>
+                      </div>
+                    </div>
+                    {/* Simulation block */}
+                    <div className="p-6 rounded-2xl border border-[var(--color-accent-violet)]/20 bg-[var(--color-accent-violet)]/[0.02]">
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between text-xs font-mono">
+                          <span className="text-gray-500">Current: {block.current}</span>
+                          <span className="text-[var(--color-accent-emerald)]">Expected: {block.expected}</span>
+                        </div>
+                        <div className="h-28 flex items-center justify-center border border-white/[0.04] rounded-xl bg-black/50">
+                          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-accent-violet)] text-white text-xs font-bold hover:bg-[var(--color-accent-violet)]/80 transition-all shadow-[0_0_15px_rgba(139,92,246,0.2)]">
+                            <Zap size={12} /> Run Interactive Sandbox Simulation
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              default:
+                return null;
+            }
+          })}
+        </div>
+      )}
+
       {/* Key Idea Glow Card */}
       {content.keyIdea && (
         <GlowCard data={content.keyIdea} />

@@ -173,6 +173,62 @@ export interface StepAnimationBlock {
   steps: { title: string; description: string; state: any }[];
 }
 
+export interface ConceptBlock {
+  type: 'concept';
+  text: string;
+  visual: {
+    type: string;
+    data?: any;
+  };
+}
+
+export interface InternalWorkingBlock {
+  type: 'internal-working';
+  text: string;
+  steps: { title: string; description: string; state?: any }[];
+}
+
+export interface ComplexityBlock {
+  type: 'complexity';
+  text: string;
+  operation: string;
+  time: string;
+  space: string;
+  reason: string;
+}
+
+export interface RealWorldBlock {
+  type: 'real-world';
+  text: string;
+  visual: {
+    type: string;
+    title: string;
+    data?: any;
+  };
+}
+
+export interface InterviewInsightBlock {
+  type: 'interview-insight';
+  text: string;
+  checklist: string[];
+}
+
+export interface MiniPracticeBlock {
+  type: 'mini-practice';
+  question: string;
+  current: string;
+  expected: string;
+  interactiveDemoType: string;
+}
+
+export type LessonBlock =
+  | ConceptBlock
+  | InternalWorkingBlock
+  | ComplexityBlock
+  | RealWorldBlock
+  | InterviewInsightBlock
+  | MiniPracticeBlock;
+
 export interface SectionContent {
   prose?: string[];
   hook?: HookBlock;
@@ -198,6 +254,7 @@ export interface SectionContent {
   visualDemo?: VisualDemoBlock;
   interactiveSimulation?: InteractiveSimulationBlock;
   stepAnimation?: StepAnimationBlock;
+  blocks?: LessonBlock[];
 }
 
 export interface Section {
