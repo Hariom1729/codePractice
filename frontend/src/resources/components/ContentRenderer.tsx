@@ -543,6 +543,279 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
     );
   }
 
+  // Bespoke Handcrafted Layout Switcher
+  if (section.layoutType) {
+    return (
+      <motion.article
+        key={section.id ?? topicId}
+        variants={sectionVariants}
+        initial="hidden"
+        animate="visible"
+        className="max-w-3xl mx-auto w-full space-y-8 pb-16"
+      >
+        {/* Customized Header */}
+        <header className="flex items-center gap-4 border-b border-[var(--color-border-glass)] pb-6">
+          <span className="text-4xl p-3 rounded-2xl bg-[var(--color-surface-elevated)] border border-white/[0.04]">
+            {section.icon}
+          </span>
+          <div>
+            <h2 className="text-3xl font-black tracking-tight text-white">{section.title}</h2>
+            <div className="flex items-center gap-2 mt-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <Clock size={12} />
+              <span>{section.estimatedTime}</span>
+              <span className="text-white/20">•</span>
+              <span className="text-[var(--color-accent-cyan)]">{section.layoutType.replace('-', ' ')}</span>
+            </div>
+          </div>
+        </header>
+
+        {/* 1. INTRODUCTION LAYOUT */}
+        {section.layoutType === 'introduction' && (
+          <div className="space-y-8 animate-fadeIn">
+            {content.blocks?.map((block: any, idx: number) => {
+              if (block.type === 'concept') {
+                return (
+                  <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)]/80 relative overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-accent-cyan)]/5 rounded-full blur-3xl" />
+                    <span className="text-xs font-bold text-[var(--color-accent-cyan)] uppercase tracking-widest block mb-2">💡 Core Concept</span>
+                    <p className="text-lg text-gray-100 font-medium leading-relaxed mb-6">{block.text}</p>
+                    <div className="p-4 rounded-2xl bg-black/40 border border-white/[0.04] flex items-center justify-center">
+                      <div className="flex gap-2 items-center text-sm font-mono">
+                        <span className="text-gray-500">Array:</span>
+                        <span className="px-2 py-1 rounded bg-white/5 border border-white/10 text-white">[A][B][C][D]</span>
+                        <span className="text-gray-400 font-bold mx-2">vs</span>
+                        <span className="text-gray-500">Linked:</span>
+                        <span className="px-2 py-1 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 text-white">[A]</span>
+                        <span className="text-gray-600">→</span>
+                        <span className="px-2 py-1 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 text-white">[B]</span>
+                        <span className="text-gray-600">→</span>
+                        <span className="px-2 py-1 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 text-white">[C]</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              if (block.type === 'real-world') {
+                return (
+                  <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/30 space-y-4">
+                    <span className="text-xs font-bold text-[var(--color-accent-emerald)] uppercase tracking-widest block">🌍 Real-World Mapping</span>
+                    <p className="text-gray-300 leading-relaxed">{block.text}</p>
+                    <div className="p-4 rounded-xl border border-white/[0.04] bg-[#0c0c0e]">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">🎵</span>
+                        <div>
+                          <p className="text-sm font-bold text-white">Spotify Queue Simulation</p>
+                          <p className="text-xs text-gray-500">Current Song → Next Song → Queue End</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+        )}
+
+        {/* 2. MEMORY MAP LAYOUT */}
+        {section.layoutType === 'memory-map' && (
+          <div className="space-y-8">
+            <div className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)] shadow-2xl">
+              <span className="text-xs font-bold text-rose-400 uppercase tracking-widest block mb-2">🧠 Scattered RAM Explorer</span>
+              <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                Nodes live in arbitrary addresses across heap memory. Click cells to view details.
+              </p>
+
+              {/* RAM Grid visualizer */}
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 mb-6">
+                {Array.from({ length: 16 }).map((_, i) => {
+                  const addr = 1000 + i * 16;
+                  const isNode = [1016, 1064, 1128].includes(addr);
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => alert(`Address ${addr}: ${isNode ? 'Allocated Node Data' : 'Free Heap space'}`)}
+                      className={`p-3 rounded-xl border font-mono text-[10px] text-center transition-all ${
+                        isNode
+                          ? 'bg-[var(--color-accent-violet)]/10 border-[var(--color-accent-violet)] text-[var(--color-accent-violet)] font-bold shadow-[0_0_12px_rgba(139,92,246,0.15)]'
+                          : 'bg-white/[0.02] border-white/[0.04] text-gray-600 hover:border-white/10'
+                      }`}
+                    >
+                      {addr}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="p-4 rounded-xl border border-white/[0.04] bg-[#0c0c0e] flex items-center justify-between text-xs font-mono">
+                <span className="text-gray-500">Heap Size: 256MB</span>
+                <span className="text-[var(--color-accent-cyan)]">Fragmentation: High (Singly scattered nodes)</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 3. OPERATION VISUALIZER LAYOUT */}
+        {section.layoutType === 'operation-visualizer' && (
+          <div className="space-y-8 animate-fadeIn">
+            {content.blocks?.map((block: any, idx: number) => {
+              if (block.type === 'concept') {
+                return (
+                  <div key={idx} className="space-y-4">
+                    <p className="text-gray-300 leading-relaxed">{block.text}</p>
+                    <div className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)] relative">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-xs font-bold text-[var(--color-accent-cyan)] uppercase tracking-widest">Before Operations</span>
+                        <span className="text-xs font-bold text-[var(--color-accent-emerald)] uppercase tracking-widest">After Operations</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row items-center gap-6 justify-center bg-black/40 p-4 rounded-2xl border border-white/[0.02] font-mono text-sm">
+                        <div className="flex items-center gap-1.5 opacity-60">
+                          <span className="px-2.5 py-1.5 rounded bg-white/5 border border-white/10">[10]</span>
+                          <span>→</span>
+                          <span className="px-2.5 py-1.5 rounded bg-white/5 border border-white/10">[20]</span>
+                        </div>
+                        <span className="text-gray-600">⚡ Rewire ⚡</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="px-2.5 py-1.5 rounded bg-[var(--color-accent-emerald)]/10 border border-[var(--color-accent-emerald)]/30">[10]</span>
+                          <span className="text-[var(--color-accent-emerald)] font-bold">→</span>
+                          <span className="px-2.5 py-1.5 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 font-bold">[15]</span>
+                          <span className="text-[var(--color-accent-emerald)] font-bold">→</span>
+                          <span className="px-2.5 py-1.5 rounded bg-[var(--color-accent-emerald)]/10 border border-[var(--color-accent-emerald)]/30">[20]</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              if (block.type === 'internal-working') {
+                return (
+                  <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/20 space-y-4">
+                    <span className="text-xs font-bold text-[var(--color-accent-violet)] uppercase tracking-widest block">⚙️ Step-by-Step State Slider</span>
+                    <div className="space-y-3">
+                      {block.steps.map((step: any, sIdx: number) => (
+                        <div key={sIdx} className="flex gap-4 items-start p-3 rounded-xl bg-[#0c0c0e] border border-white/[0.02]">
+                          <span className="w-6 h-6 rounded-full bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                            {sIdx + 1}
+                          </span>
+                          <div>
+                            <p className="text-sm font-bold text-white">{step.title}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+        )}
+
+        {/* 4. ALGORITHM SIMULATION LAYOUT */}
+        {section.layoutType === 'algorithm-simulation' && (
+          <div className="space-y-8 animate-fadeIn">
+            {content.blocks?.map((block: any, idx: number) => {
+              if (block.type === 'concept') {
+                return (
+                  <div key={idx} className="space-y-4">
+                    <p className="text-gray-300 leading-relaxed">{block.text}</p>
+
+                    {/* Circular visual track or slow-fast pointers */}
+                    <div className="p-8 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)] shadow-2xl relative">
+                      <div className="absolute top-4 left-4 text-[10px] font-bold text-[var(--color-accent-violet)] uppercase tracking-widest">
+                        Floyd's Fast & Slow Simulator
+                      </div>
+                      
+                      <div className="h-44 flex flex-col items-center justify-center gap-6">
+                        {/* Track visualization */}
+                        <div className="relative w-28 h-28 rounded-full border border-dashed border-white/10 flex items-center justify-center">
+                          <div className="absolute top-0 w-8 h-8 rounded-full bg-[var(--color-accent-cyan)]/10 border border-[var(--color-accent-cyan)]/30 flex items-center justify-center text-xs font-bold text-white shadow-[0_0_12px_rgba(6,182,212,0.2)]">
+                            🐢
+                          </div>
+                          <div className="absolute bottom-0 w-8 h-8 rounded-full bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 flex items-center justify-center text-xs font-bold text-white shadow-[0_0_12px_rgba(139,92,246,0.2)]">
+                            🐇
+                          </div>
+                          <span className="text-xs text-gray-500 font-mono">Loop Track</span>
+                        </div>
+
+                        {/* Controls */}
+                        <button
+                          onClick={() => alert("Simulation Running: Slow pointer advances 1 step, Fast pointer advances 2 steps. Collision occurs in 4 steps.")}
+                          className="px-5 py-2.5 rounded-full bg-[var(--color-accent-violet)] hover:bg-[var(--color-accent-violet)]/80 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(139,92,246,0.25)] flex items-center gap-2"
+                        >
+                          <Zap size={12} /> Run Simulation Frame
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+        )}
+
+        {/* 5. PATTERN MATCHING LAYOUT */}
+        {section.layoutType === 'pattern-matching' && (
+          <div className="space-y-8 animate-fadeIn">
+            {content.blocks?.map((block: any, idx: number) => {
+              if (block.type === 'concept') {
+                return (
+                  <div key={idx} className="space-y-4">
+                    <p className="text-gray-300 leading-relaxed">{block.text}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {block.visual.data?.map((pattern: any, pIdx: number) => (
+                        <div key={pIdx} className="p-5 rounded-2xl border border-white/[0.04] bg-[var(--color-surface-elevated)]/30 hover:border-[var(--color-accent-cyan)]/30 transition-colors">
+                          <span className="text-[10px] font-bold text-[var(--color-accent-cyan)] uppercase tracking-wider block mb-1">Pattern</span>
+                          <h4 className="text-sm font-bold text-white mb-2">{pattern.name}</h4>
+                          <p className="text-xs text-gray-400 leading-normal">{pattern.description}</p>
+                        </div>
+                      )) ?? (
+                        <div className="p-5 rounded-2xl border border-white/[0.04] bg-[var(--color-surface-elevated)]/30 col-span-2 text-center text-xs text-gray-500 font-mono">
+                          No specific patterns populated. Tap to inspect visual assets.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+        )}
+
+        {/* 6. INTERVIEW PREPARATION LAYOUT */}
+        {section.layoutType === 'interview-prep' && (
+          <div className="space-y-8 animate-fadeIn">
+            <div className="p-6 rounded-3xl border border-red-500/20 bg-red-500/[0.01] space-y-6">
+              <span className="text-xs font-bold text-red-400 uppercase tracking-widest block">⚠️ Common Interview Traps</span>
+              
+              <div className="space-y-4">
+                <div className="p-4 rounded-xl border border-red-500/10 bg-red-950/10">
+                  <h4 className="text-sm font-bold text-red-300">#1: Null Dereference Crash</h4>
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                    Always verify `curr.next` or `curr` is not null before checking `curr.next.next`.
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl border border-red-500/10 bg-red-950/10">
+                  <h4 className="text-sm font-bold text-red-300">#2: Lost Pointer Reconnection</h4>
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                    Save the next node address before updating pointers, or the rest of the list is lost in heap space.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {content.revisionHub && (
+              <RevisionHub data={content.revisionHub} />
+            )}
+          </div>
+        )}
+      </motion.article>
+    );
+  }
+
   return (
     <motion.article
       key={section.id ?? topicId}

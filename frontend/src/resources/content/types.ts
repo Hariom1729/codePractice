@@ -257,11 +257,21 @@ export interface SectionContent {
   blocks?: LessonBlock[];
 }
 
+export type SectionLayoutType = 
+  | 'introduction' 
+  | 'memory-map' 
+  | 'operation-visualizer' 
+  | 'complexity-analysis' 
+  | 'algorithm-simulation' 
+  | 'pattern-matching' 
+  | 'interview-prep';
+
 export interface Section {
   id: SectionType;
   title: string;
   icon: string;
   estimatedTime: string;
+  layoutType?: SectionLayoutType;
   content: SectionContent;
 }
 

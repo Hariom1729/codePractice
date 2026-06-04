@@ -3,8 +3,8 @@ import type { TopicContent } from './types';
 export const linkedListsContent: TopicContent = {
   id: 'linked-lists',
   title: 'Linked Lists',
-  subtitle: 'Visual, Balanced & Interactive',
-  description: 'Master Linked Lists through a balanced learning flow. Alternate between clear concepts, interactive visual animations, and real-life analogies.',
+  subtitle: 'Visual, Handcrafted & Tailored',
+  description: 'Master Linked Lists through dynamic, section-specific visual layouts tailored to the nature of each topic.',
   totalTime: '6-8 Hours',
   difficulty: 'Beginner',
   prerequisites: ['Basic Programming', 'Variables & Loops'],
@@ -14,6 +14,7 @@ export const linkedListsContent: TopicContent = {
       title: 'What is a Linked List',
       icon: '🔗',
       estimatedTime: '8 min',
+      layoutType: 'introduction',
       content: {
         blocks: [
           {
@@ -68,6 +69,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Node Visualizer',
       icon: '🧱',
       estimatedTime: '10 min',
+      layoutType: 'operation-visualizer',
       content: {
         blocks: [
           {
@@ -119,6 +121,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Memory Visualization',
       icon: '🧠',
       estimatedTime: '8 min',
+      layoutType: 'memory-map',
       content: {
         blocks: [
           {
@@ -170,6 +173,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Traversal Animation',
       icon: '🏃',
       estimatedTime: '10 min',
+      layoutType: 'operation-visualizer',
       content: {
         blocks: [
           {
@@ -222,6 +226,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Insertion Visualizer',
       icon: '➕',
       estimatedTime: '15 min',
+      layoutType: 'operation-visualizer',
       content: {
         blocks: [
           {
@@ -274,6 +279,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Deletion Visualizer',
       icon: '🗑️',
       estimatedTime: '15 min',
+      layoutType: 'operation-visualizer',
       content: {
         blocks: [
           {
@@ -326,6 +332,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Search Visualizer',
       icon: '🔍',
       estimatedTime: '10 min',
+      layoutType: 'operation-visualizer',
       content: {
         blocks: [
           {
@@ -378,6 +385,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Singly Linked List',
       icon: '➡️',
       estimatedTime: '10 min',
+      layoutType: 'introduction',
       content: {
         blocks: [
           {
@@ -429,6 +437,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Doubly Linked List',
       icon: '↔️',
       estimatedTime: '12 min',
+      layoutType: 'introduction',
       content: {
         blocks: [
           {
@@ -480,6 +489,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Circular Linked List',
       icon: '🔄',
       estimatedTime: '10 min',
+      layoutType: 'introduction',
       content: {
         blocks: [
           {
@@ -531,6 +541,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Reverse Linked List',
       icon: '🔀',
       estimatedTime: '15 min',
+      layoutType: 'algorithm-simulation',
       content: {
         blocks: [
           {
@@ -583,6 +594,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Fast & Slow Pointer',
       icon: '🐇',
       estimatedTime: '15 min',
+      layoutType: 'algorithm-simulation',
       content: {
         blocks: [
           {
@@ -634,6 +646,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Cycle Detection',
       icon: '🌪️',
       estimatedTime: '15 min',
+      layoutType: 'algorithm-simulation',
       content: {
         blocks: [
           {
@@ -686,6 +699,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Merge Two Lists',
       icon: '🧬',
       estimatedTime: '12 min',
+      layoutType: 'algorithm-simulation',
       content: {
         blocks: [
           {
@@ -738,6 +752,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Interview Pattern Visualizer',
       icon: '🧩',
       estimatedTime: '15 min',
+      layoutType: 'pattern-matching',
       content: {
         blocks: [
           {
@@ -790,12 +805,13 @@ export const linkedListsContent: TopicContent = {
       title: 'Real World Applications',
       icon: '🌍',
       estimatedTime: '8 min',
+      layoutType: 'introduction',
       content: {
         blocks: [
           {
             type: 'concept',
             text: 'In production systems, linked lists are used where rapid insertion and deletion are prioritized over random access.',
-            visual: { type: 'real-world-map' as any }
+            visual: { type: 'real-world-map' }
           },
           {
             type: 'internal-working',
@@ -841,6 +857,7 @@ export const linkedListsContent: TopicContent = {
       title: 'Revision Dashboard',
       icon: '⚡',
       estimatedTime: '5 min',
+      layoutType: 'interview-prep',
       content: {
         revisionHub: {
           topicSummary: {
