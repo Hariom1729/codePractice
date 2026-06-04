@@ -14,6 +14,7 @@ import {
   XCircle,
   RefreshCw,
   Eye,
+  EyeOff,
   Code2,
 } from "lucide-react";
 import { CodeBlock } from "./CodeBlock";
@@ -500,7 +501,926 @@ function TableSection({ data }: { data: TableData }) {
   );
 }
 
-// --------------- ContentRenderer ---------------
+// =============== BESPOKE INTERACTIVE VISUALIZERS ===============
+
+function MemoryVisualizer({ type }: { type: string }) {
+  const [compareState, setCompareState] = useState<'idle' | 'inserting' | 'done'>('idle');
+  const [huntStep, setHuntStep] = useState(0);
+  const [scatterActive, setScatterActive] = useState(false);
+
+  if (type === 'array-vs-linked') {
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-6">
+        <div>
+          <h5 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            <span>📦 Sequential Array</span>
+            <span className="text-[var(--color-accent-cyan)] font-mono text-[9px]">(Contiguous)</span>
+          </h5>
+          <div className="flex gap-1.5 justify-center items-center h-12 bg-black/40 rounded-xl p-2 border border-white/[0.02] overflow-x-auto">
+            {compareState === 'inserting' && (
+              <motion.div initial={{ scale: 0, width: 0 }} animate={{ scale: 1, width: 'auto' }} className="px-3 py-1 rounded-lg bg-[var(--color-accent-violet)] text-white text-xs font-mono font-bold shadow-[0_0_8px_rgba(139,92,246,0.3)]">
+                [5]
+              </motion.div>
+            )}
+            <motion.div animate={compareState === 'inserting' ? { x: 8 } : { x: 0 }} className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
+              [10]
+            </motion.div>
+            <motion.div animate={compareState === 'inserting' ? { x: 8 } : { x: 0 }} className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
+              [20]
+            </motion.div>
+            <motion.div animate={compareState === 'inserting' ? { x: 8 } : { x: 0 }} className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
+              [30]
+            </motion.div>
+          </div>
+          <span className="text-[10px] text-gray-500 font-mono mt-1.5 block">
+            {compareState === 'inserting' 
+              ? '⚠️ O(N) Shift Cost: We had to shift [10], [20], and [30] in memory to fit [5] at the front!' 
+              : 'Stored side-by-side. Inserting at head forces all other elements to shift.'}
+          </span>
+        </div>
+
+        <div>
+          <h5 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            <span>🔗 Linked List</span>
+            <span className="text-[var(--color-accent-violet)] font-mono text-[9px]">(Scatter-Allocated)</span>
+          </h5>
+          <div className="flex gap-2.5 justify-center items-center h-12 bg-black/40 rounded-xl p-2 border border-white/[0.02] overflow-x-auto">
+            {compareState === 'inserting' && (
+              <>
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="px-3 py-1 rounded-lg bg-[var(--color-accent-emerald)]/10 border border-[var(--color-accent-emerald)]/40 text-xs font-mono text-[var(--color-accent-emerald)] font-bold">
+                  [5]
+                </motion.div>
+                <span className="text-[var(--color-accent-emerald)] font-bold font-mono">→</span>
+              </>
+            )}
+            <div className="px-3 py-1 rounded-lg bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 text-xs font-mono text-gray-300">
+              [10]
+            </div>
+            <span className="text-gray-600 font-mono">→</span>
+            <div className="px-3 py-1 rounded-lg bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 text-xs font-mono text-gray-300">
+              [20]
+            </div>
+          </div>
+          <span className="text-[10px] text-gray-500 font-mono mt-1.5 block">
+            {compareState === 'inserting' 
+              ? '✅ O(1) Prepend: No shifting needed! We just wove Node [5] and pointed its next pointer to [10].' 
+              : 'Pointers link nodes scattered anywhere in memory.'}
+          </span>
+        </div>
+
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={() => setCompareState(compareState === 'idle' ? 'inserting' : 'idle')}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-bold text-white transition-all shadow-md"
+          >
+            <RefreshCw size={12} className={compareState === 'inserting' ? 'animate-spin' : ''} />
+            {compareState === 'inserting' ? 'Reset Visualization' : 'Simulate Prepend Insertion'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'memory-scatter') {
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+        <p className="text-xs font-bold text-rose-400 uppercase tracking-widest flex items-center gap-1.5">
+          <span>🧠 Heap Allocation Map</span>
+        </p>
+        <div className="grid grid-cols-4 gap-2">
+          {Array.from({ length: 8 }).map((_, i) => {
+            const addr = 1000 + i * 256;
+            const isNode = i === 1 || i === 4 || i === 6;
+            const active = scatterActive && isNode;
+            return (
+              <div
+                key={i}
+                className={`p-2.5 rounded-xl border font-mono text-[10px] text-center transition-all duration-300 ${
+                  active
+                    ? 'bg-[var(--color-accent-violet)]/20 border-[var(--color-accent-violet)] text-white shadow-[0_0_12px_rgba(139,92,246,0.35)]'
+                    : isNode
+                    ? 'bg-[var(--color-accent-violet)]/5 border-[var(--color-accent-violet)]/20 text-[var(--color-accent-violet)]/80'
+                    : 'bg-white/[0.01] border-white/[0.03] text-gray-700'
+                }`}
+              >
+                <div className="opacity-60">{addr}</div>
+                {isNode && <div className="text-[9px] text-gray-400 font-bold mt-1">{i === 1 ? 'Node A' : i === 4 ? 'Node B' : 'Node C'}</div>}
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex justify-between items-center mt-2">
+          <span className="text-[10px] text-gray-500 font-mono">
+            {scatterActive ? 'A (1256) points to B (2024), which points to C (2536).' : 'Nodes are scattered in heap memory.'}
+          </span>
+          <button
+            onClick={() => setScatterActive(!scatterActive)}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-bold text-white transition-colors"
+          >
+            {scatterActive ? <EyeOff size={10} /> : <Eye size={10} />}
+            <span>{scatterActive ? 'Hide Address Links' : 'Trace Heap Pointers'}</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'scavenger-hunt') {
+    const clues = [
+      { addr: '0x01A2', text: 'Head node. Start here. Next clue is hidden at address 0x05F4.', label: 'Head Clue' },
+      { addr: '0x05F4', text: 'Bridge node. You follow the chain. Next is at address 0x03B8.', label: 'Bridge Clue' },
+      { addr: '0x03B8', text: 'Success! You reached the final treasure chest 🪙', label: 'Treasure Node' },
+    ];
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+        <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Scavenger Hunt Address Chain</p>
+        <div className="flex flex-col gap-3">
+          {clues.map((clue, idx) => {
+            const visible = huntStep >= idx;
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 8 }}
+                animate={visible ? { opacity: 1, y: 0 } : { opacity: 0.1 }}
+                className={`p-3.5 rounded-xl border transition-all ${
+                  visible
+                    ? idx === 2
+                      ? 'bg-[var(--color-accent-emerald)]/10 border-[var(--color-accent-emerald)]/40 text-[var(--color-accent-emerald)] shadow-[0_0_15px_rgba(16,185,129,0.1)]'
+                      : 'bg-white/5 border-white/10 text-white'
+                    : 'bg-white/[0.01] border-white/[0.03] text-gray-700'
+                }`}
+              >
+                <div className="flex justify-between text-[9px] font-mono text-gray-500 mb-1">
+                  <span>RAM Addr: {clue.addr}</span>
+                  <span className="font-bold">{clue.label}</span>
+                </div>
+                <p className="text-xs leading-normal">{visible ? clue.text : '?? Address Unvisited ??'}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+        <div className="flex justify-center gap-2 mt-2">
+          {huntStep < 2 ? (
+            <button
+              onClick={() => setHuntStep(huntStep + 1)}
+              className="flex items-center gap-1 px-4 py-2 rounded-xl bg-[var(--color-accent-cyan)]/20 text-[var(--color-accent-cyan)] border border-[var(--color-accent-cyan)]/30 hover:bg-[var(--color-accent-cyan)]/30 text-xs font-bold transition-all"
+            >
+              <span>Follow Address Clue</span>
+              <ChevronRight size={12} />
+            </button>
+          ) : (
+            <button
+              onClick={() => setHuntStep(0)}
+              className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-bold text-white transition-all"
+            >
+              Restart Hunt
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function ListDiagramVisualizer({ type }: { type: string }) {
+  const [stepIdx, setStepIdx] = useState(0);
+
+  if (type === 'node-anatomy') {
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] flex flex-col items-center justify-center gap-4">
+        <div className="flex border-2 border-[var(--color-accent-cyan)] rounded-2xl overflow-hidden font-mono text-sm shadow-[0_0_30px_rgba(6,182,212,0.15)] bg-black/50">
+          <div
+            onMouseEnter={() => setStepIdx(1)}
+            className={`px-6 py-4 transition-colors cursor-help flex flex-col items-center justify-center border-r-2 border-[var(--color-accent-cyan)] ${
+              stepIdx === 1 ? 'bg-[var(--color-accent-cyan)]/10 text-white' : 'bg-transparent text-gray-300'
+            }`}
+          >
+            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block mb-1">data</span>
+            <span className="text-lg font-black">42</span>
+          </div>
+          <div
+            onMouseEnter={() => setStepIdx(2)}
+            className={`px-6 py-4 transition-colors cursor-help flex flex-col items-center justify-center ${
+              stepIdx === 2 ? 'bg-[var(--color-accent-violet)]/10 text-white' : 'bg-transparent text-gray-300'
+            }`}
+          >
+            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block mb-1">next pointer</span>
+            <span className="text-xs font-semibold text-[var(--color-accent-cyan)]">0x9F40</span>
+          </div>
+        </div>
+        <p className="text-xs text-gray-400 max-w-sm text-center h-10 leading-relaxed font-medium transition-all duration-200">
+          {stepIdx === 1
+            ? '💡 Data Field: Holds the actual value (e.g. an integer 42, string or object).'
+            : stepIdx === 2
+            ? '🔗 Next Pointer: Holds the hexadecimal memory address of the next node.'
+            : 'Hover over parts of the Node to explore its layout anatomy.'}
+        </p>
+      </div>
+    );
+  }
+
+  if (type === 'traversal' || type === 'search' || type === 'singly-list' || type === 'slideshow') {
+    const list = [10, 20, 30, 40];
+    const isSearch = type === 'search';
+    const targetVal = 30;
+    const isFound = isSearch && stepIdx >= 2;
+
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+        <div className="flex gap-2 items-center justify-center flex-wrap min-h-16 py-2">
+          {list.map((val, idx) => {
+            const isCurr = stepIdx === idx;
+            const wasVisited = isSearch ? idx < stepIdx : idx <= stepIdx;
+            const matches = val === targetVal;
+            const matchHighlight = isSearch && matches && isFound;
+
+            return (
+              <div key={idx} className="flex items-center gap-2">
+                <div
+                  className={`p-3 rounded-xl border-2 font-mono text-center relative transition-all duration-300 ${
+                    matchHighlight
+                      ? 'bg-[var(--color-accent-emerald)]/20 border-[var(--color-accent-emerald)] text-white font-bold scale-105 shadow-[0_0_15px_rgba(16,185,129,0.4)]'
+                      : isCurr
+                      ? 'bg-[var(--color-accent-violet)]/20 border-[var(--color-accent-violet)] text-white font-bold scale-105 shadow-[0_0_12px_rgba(139,92,246,0.35)]'
+                      : wasVisited
+                      ? 'bg-white/5 border-white/20 text-gray-400'
+                      : 'bg-white/[0.01] border-white/[0.05] text-gray-600'
+                  }`}
+                >
+                  <span className="text-xs block">{val}</span>
+                  {isCurr && (
+                    <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] font-bold text-[var(--color-accent-violet)] uppercase tracking-wider">
+                      curr
+                    </span>
+                  )}
+                </div>
+                {idx < list.length - 1 && (
+                  <span className={`text-sm font-bold transition-all ${isCurr ? 'text-[var(--color-accent-violet)]' : 'text-gray-700'}`}>
+                    →
+                  </span>
+                )}
+              </div>
+            );
+          })}
+          <div className="flex items-center gap-1.5 ml-2">
+            <span className="text-gray-700">→</span>
+            <span className="px-2 py-1 bg-white/5 border border-white/10 rounded font-mono text-[10px] text-gray-500">NULL</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center text-xs pt-2">
+          <span className="text-gray-400 font-mono leading-relaxed">
+            {isSearch
+              ? isFound
+                ? `🎯 Found target ${targetVal}! Matching node is highlighted.`
+                : stepIdx >= list.length
+                ? `❌ Value not found in list.`
+                : `Scanning: checking node ${stepIdx + 1} (${list[stepIdx]})...`
+              : `curr = head (${list[0]}). Click Next to advance traversal.`}
+          </span>
+          <button
+            onClick={() => setStepIdx((stepIdx + 1) % (list.length + (isSearch ? 1 : 0)))}
+            className="px-3.5 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-[10px] font-bold text-white transition-colors"
+          >
+            Next Step
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'doubly-list') {
+    const list = ['A', 'B', 'C'];
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+        <div className="flex gap-2 items-center justify-center flex-wrap py-2">
+          <span className="px-2 py-1 bg-white/5 border border-white/10 rounded font-mono text-[10px] text-gray-500">NULL</span>
+          <span className="text-gray-700">←</span>
+          {list.map((val, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <div className="p-3.5 rounded-xl border border-white/10 bg-black/40 font-mono text-xs hover:border-[var(--color-accent-cyan)] transition-colors duration-200">
+                <span className="text-white font-bold">{val}</span>
+              </div>
+              {idx < list.length - 1 && (
+                <span className="text-gray-500 font-bold px-1">
+                  ⇄
+                </span>
+              )}
+            </div>
+          ))}
+          <span className="text-gray-700">→</span>
+          <span className="px-2 py-1 bg-white/5 border border-white/10 rounded font-mono text-[10px] text-gray-500">NULL</span>
+        </div>
+        <p className="text-[10px] text-center text-gray-500 font-mono leading-relaxed">
+          ⇄ represents two links: next pointing forward, and prev pointing backward.
+        </p>
+      </div>
+    );
+  }
+
+  if (type === 'circular-list') {
+    return (
+      <div className="p-6 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] flex flex-col items-center justify-center gap-4">
+        <div className="relative w-36 h-36 flex items-center justify-center">
+          <div className="absolute top-0 w-10 h-10 rounded-full border border-white/10 bg-black/40 flex items-center justify-center text-xs font-mono font-bold text-white shadow-md">A</div>
+          <div className="absolute right-0 w-10 h-10 rounded-full border border-white/10 bg-black/40 flex items-center justify-center text-xs font-mono font-bold text-white shadow-md">B</div>
+          <div className="absolute bottom-0 w-10 h-10 rounded-full border border-white/10 bg-black/40 flex items-center justify-center text-xs font-mono font-bold text-white shadow-md">C</div>
+          <svg className="absolute w-full h-full text-[var(--color-accent-violet)]" viewBox="0 0 100 100">
+            <path d="M 50 15 A 35 35 0 0 1 85 50" fill="none" stroke="currentColor" strokeWidth="1.5" markerEnd="url(#arrow)" />
+            <path d="M 85 50 A 35 35 0 0 1 50 85" fill="none" stroke="currentColor" strokeWidth="1.5" markerEnd="url(#arrow)" />
+            <path d="M 50 85 A 35 35 0 0 1 50 15" fill="none" stroke="currentColor" strokeWidth="1.5" markerEnd="url(#arrow)" />
+          </svg>
+        </div>
+        <p className="text-[10px] text-gray-500 font-mono text-center max-w-xs leading-relaxed">
+          Notice there is no NULL pointer. The tail node connects back to the head node A.
+        </p>
+      </div>
+    );
+  }
+
+  if (type === 'reversal') {
+    const list = [10, 20, 30];
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+        <div className="flex gap-4 items-center justify-center py-2 h-16">
+          {list.map((val, idx) => {
+            const isReversed = stepIdx > idx;
+            return (
+              <div key={idx} className="flex items-center gap-2">
+                {isReversed && (
+                  <span className="text-[var(--color-accent-emerald)] font-bold text-sm">
+                    ←
+                  </span>
+                )}
+                <div className="p-3 rounded-xl border border-white/10 bg-black/40 font-mono text-xs">
+                  {val}
+                </div>
+                {!isReversed && idx < list.length - 1 && (
+                  <span className="text-gray-600 font-bold text-sm">
+                    →
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex justify-between items-center text-xs">
+          <span className="text-gray-400 font-mono leading-relaxed">
+            {stepIdx === 0
+              ? 'Original chain: pointers point right.'
+              : stepIdx === 1
+              ? 'Step 1: Point head pointer to null. 10.next = null.'
+              : stepIdx === 2
+              ? 'Step 2: Reverse middle node. 20.next = 10.'
+              : 'Reversal complete! List is reversed.'}
+          </span>
+          <button
+            onClick={() => setStepIdx((stepIdx + 1) % 4)}
+            className="px-3.5 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-[10px] font-bold text-white transition-all"
+          >
+            Next Step
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function SimulationVisualizer({ type }: { type: string }) {
+  const [step, setStep] = useState(0);
+  const isCycle = type === 'cycle-detection' || type === 'race-lap';
+  const nodes = [10, 20, 30, 40, 50, 60];
+
+  const slowPath = isCycle ? [0, 1, 2, 3, 4, 5, 2, 3, 4, 5] : [0, 1, 2, 3, 4, 5];
+  const fastPath = isCycle ? [0, 2, 4, 3, 5, 4, 3, 5, 4, 3] : [0, 2, 4, 5, 5, 5];
+
+  const currentSlow = slowPath[Math.min(step, slowPath.length - 1)];
+  const currentFast = fastPath[Math.min(step, fastPath.length - 1)];
+  const collision = isCycle && currentSlow === currentFast && step > 0;
+
+  return (
+    <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+      <p className="text-xs font-bold text-[var(--color-accent-cyan)] uppercase tracking-widest">
+        {isCycle ? 'Floyd\'s Cycle Track Loop' : 'Fast & Slow Pointer Simulation'}
+      </p>
+
+      <div className="flex gap-2 items-center justify-center flex-wrap h-20 relative pt-2">
+        {nodes.map((val, idx) => {
+          const hasSlow = currentSlow === idx;
+          const hasFast = currentFast === idx;
+
+          return (
+            <div key={idx} className="flex items-center gap-2">
+              <div
+                className={`w-12 h-12 rounded-xl border font-mono text-xs flex flex-col items-center justify-center relative transition-all duration-300 ${
+                  hasSlow && hasFast
+                    ? 'bg-rose-500/20 border-rose-500 text-white font-bold scale-105 shadow-[0_0_12px_rgba(239,68,68,0.25)]'
+                    : hasSlow
+                    ? 'bg-[var(--color-accent-cyan)]/25 border-[var(--color-accent-cyan)] text-white font-bold scale-105 shadow-[0_0_10px_rgba(6,182,212,0.2)]'
+                    : hasFast
+                    ? 'bg-[var(--color-accent-violet)]/25 border-[var(--color-accent-violet)] text-white font-bold scale-105 shadow-[0_0_10px_rgba(139,92,246,0.2)]'
+                    : 'bg-white/[0.01] border-white/[0.05] text-gray-500'
+                }`}
+              >
+                <span>{val}</span>
+                <div className="absolute -bottom-5 flex gap-1 text-[8px] font-bold uppercase tracking-tighter">
+                  {hasSlow && <span className="text-[var(--color-accent-cyan)] font-black">🐢 S</span>}
+                  {hasFast && <span className="text-[var(--color-accent-violet)] font-black">🐇 F</span>}
+                </div>
+              </div>
+              {idx < nodes.length - 1 && (
+                <span className="text-gray-700 font-bold">→</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {isCycle && (
+        <div className="h-6 flex items-center justify-center text-[10px] font-mono text-gray-500 pt-2">
+          {collision ? (
+            <span className="text-rose-400 font-bold flex items-center gap-1">
+              💥 Pointers collided at node {nodes[currentSlow]}! Loop detected.
+            </span>
+          ) : (
+            `Slow pointer (🐢) at node ${nodes[currentSlow]}. Fast pointer (🐇) at node ${nodes[currentFast]}.`
+          )}
+        </div>
+      )}
+
+      <div className="flex justify-between items-center text-xs pt-2">
+        <span className="text-gray-400 font-mono leading-relaxed">
+          {!isCycle && currentFast >= 5
+            ? 'Fast reached NULL. Slow is exactly at the middle node [40]!'
+            : 'S moves at 1x speed, F moves at 2x speed.'}
+        </span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setStep(0)}
+            className="px-2.5 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-[10px] text-white"
+          >
+            Reset
+          </button>
+          <button
+            onClick={() => setStep((step + 1) % (isCycle ? 8 : 4))}
+            className="px-3.5 py-1.5 bg-[var(--color-accent-violet)] text-white rounded-xl text-[10px] font-bold transition-all shadow-md"
+          >
+            Step simulation
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StepPipelineVisualizer({ type }: { type: string }) {
+  const [step, setStep] = useState(0);
+
+  if (type === 'insertion' || type === 'spotify') {
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+        <div className="flex flex-col items-center justify-center gap-4 h-24 relative">
+          {step === 0 && (
+            <div className="flex items-center gap-2 font-mono text-xs">
+              <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[10]</div>
+              <span className="text-gray-600">─────────→</span>
+              <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[30]</div>
+            </div>
+          )}
+          {step === 1 && (
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-2 font-mono text-xs opacity-40">
+                <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[10]</div>
+                <span className="text-gray-600">──────→</span>
+                <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[30]</div>
+              </div>
+              <motion.div initial={{ scale: 0, y: 10 }} animate={{ scale: 1, y: 0 }} className="px-3 py-2 rounded-xl bg-[var(--color-accent-violet)]/20 border border-[var(--color-accent-violet)] text-white text-xs font-mono font-bold shadow-md">
+                New Node: [20]
+              </motion.div>
+            </div>
+          )}
+          {step === 2 && (
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-2 font-mono text-xs">
+                <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 opacity-40">[10]</div>
+                <span className="text-gray-600 opacity-20">──────→</span>
+                <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[30]</div>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <div className="px-3 py-2 rounded-xl bg-[var(--color-accent-violet)]/20 border border-[var(--color-accent-violet)] text-white font-bold">[20]</div>
+                <span className="text-[var(--color-accent-emerald)] font-bold">──────→</span>
+                <span className="text-gray-500">([30])</span>
+              </div>
+            </div>
+          )}
+          {step === 3 && (
+            <div className="flex items-center gap-2 font-mono text-xs">
+              <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[10]</div>
+              <span className="text-[var(--color-accent-emerald)] font-bold">──→</span>
+              <div className="px-3 py-2 rounded-xl bg-[var(--color-accent-violet)]/20 border border-[var(--color-accent-violet)] text-white font-bold">[20]</div>
+              <span className="text-[var(--color-accent-emerald)] font-bold">──→</span>
+              <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[30]</div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-between items-center text-xs pt-2 border-t border-white/[0.04]">
+          <span className="text-gray-400 font-mono leading-relaxed">
+            {step === 0
+              ? 'Original list. We want to insert [20] between [10] and [30].'
+              : step === 1
+              ? 'Step 1: Allocate memory and create the new Node [20].'
+              : step === 2
+              ? 'Step 2: Connect the new node next pointer. 20.next = 30.'
+              : 'Step 3: Point the predecessor next pointer to it. 10.next = 20.'}
+          </span>
+          <button
+            onClick={() => setStep((step + 1) % 4)}
+            className="px-3.5 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-[10px] font-bold text-white transition-colors"
+          >
+            Next Step
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'deletion' || type === 'chain-unhook') {
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+        <div className="flex items-center justify-center gap-2 font-mono text-xs h-20">
+          {step === 0 && (
+            <>
+              <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[10]</div>
+              <span className="text-gray-600">──→</span>
+              <div className="px-3 py-2 rounded-xl bg-rose-500/20 border border-rose-500 text-rose-300">[20]</div>
+              <span className="text-gray-600">──→</span>
+              <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[30]</div>
+            </>
+          )}
+          {step === 1 && (
+            <>
+              <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[10]</div>
+              <span className="text-[var(--color-accent-emerald)] font-bold">─────────────→</span>
+              <div className="px-3 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300/40 opacity-40">[20]</div>
+              <span className="text-gray-600 opacity-20">──→</span>
+              <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[30]</div>
+            </>
+          )}
+          {step === 2 && (
+            <>
+              <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[10]</div>
+              <span className="text-[var(--color-accent-emerald)] font-bold">─────────────→</span>
+              <div className="px-3 py-2 rounded-xl bg-white/5 border border-white/10">[30]</div>
+            </>
+          )}
+        </div>
+
+        <div className="flex justify-between items-center text-xs pt-2 border-t border-white/[0.04]">
+          <span className="text-gray-400 font-mono leading-relaxed">
+            {step === 0
+              ? 'Original chain. We want to delete node [20].'
+              : step === 1
+              ? 'Step 1: Bypass the node. 10.next = 20.next (which is 30).'
+              : 'Step 2: Memory reclaimed. [20] is garbage-collected!'}
+          </span>
+          <button
+            onClick={() => setStep((step + 1) % 3)}
+            className="px-3.5 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-[10px] font-bold text-white transition-colors"
+          >
+            Next Step
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'merge-lists') {
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+        <div className="flex flex-col gap-2 font-mono text-xs">
+          <div className="flex items-center gap-1">
+            <span className="text-gray-500 w-8">L1:</span>
+            <div className={`px-2 py-1 rounded border ${step >= 1 ? 'border-white/20 bg-white/5 opacity-55' : 'border-[var(--color-accent-cyan)]/30 bg-[var(--color-accent-cyan)]/5 text-white'}`}>[10]</div>
+            <span>→</span>
+            <div className={`px-2 py-1 rounded border ${step >= 3 ? 'border-white/20 bg-white/5 opacity-55' : 'border-white/10 text-gray-400'}`}>[30]</div>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-gray-500 w-8">L2:</span>
+            <div className={`px-2 py-1 rounded border ${step >= 2 ? 'border-white/20 bg-white/5 opacity-55' : 'border-white/10 text-gray-400'}`}>[20]</div>
+            <span>→</span>
+            <div className={`px-2 py-1 rounded border ${step >= 4 ? 'border-white/20 bg-white/5 opacity-55' : 'border-white/10 text-gray-400'}`}>[40]</div>
+          </div>
+          <div className="flex items-center gap-1 mt-2 border-t border-white/[0.05] pt-2">
+            <span className="text-[var(--color-accent-violet)] font-bold w-8">Out:</span>
+            <div className="px-2 py-1 rounded border border-dashed border-white/10 text-gray-600 bg-white/[0.01]">Dummy</div>
+            {step >= 1 && (
+              <>
+                <span>→</span>
+                <div className="px-2 py-1 rounded border border-[var(--color-accent-emerald)] bg-[var(--color-accent-emerald)]/10 text-white">[10]</div>
+              </>
+            )}
+            {step >= 2 && (
+              <>
+                <span>→</span>
+                <div className="px-2 py-1 rounded border border-[var(--color-accent-emerald)] bg-[var(--color-accent-emerald)]/10 text-white">[20]</div>
+              </>
+            )}
+            {step >= 3 && (
+              <>
+                <span>→</span>
+                <div className="px-2 py-1 rounded border border-[var(--color-accent-emerald)] bg-[var(--color-accent-emerald)]/10 text-white">[30]</div>
+              </>
+            )}
+            {step >= 4 && (
+              <>
+                <span>→</span>
+                <div className="px-2 py-1 rounded border border-[var(--color-accent-emerald)] bg-[var(--color-accent-emerald)]/10 text-white">[40]</div>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center text-xs pt-2">
+          <span className="text-gray-400 font-mono leading-relaxed">
+            {step === 0
+              ? 'Ready to weave L1 and L2 sorted lists.'
+              : step === 1
+              ? 'Linked 10: dummy points to L1 head (10 < 20).'
+              : step === 2
+              ? 'Linked 20: 10 points to L2 head (20 < 30).'
+              : step === 3
+              ? 'Linked 30: 20 points to L1 remainder.'
+              : 'Linked 40: Merged complete!'}
+          </span>
+          <button
+            onClick={() => setStep((step + 1) % 5)}
+            className="px-3.5 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-[10px] font-bold text-white transition-colors"
+          >
+            Next Step
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function ApplicationVisualizer({ type }: { type: string }) {
+  const [activeTab, setActiveTab] = useState(2);
+  const [history, setHistory] = useState(['google.com', 'spotify.com', 'leetcode.com']);
+
+  if (type === 'browser') {
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-white/5">
+          <button
+            disabled={activeTab === 0}
+            onClick={() => setActiveTab(activeTab - 1)}
+            className="p-1.5 rounded hover:bg-white/10 disabled:opacity-20 text-white transition-colors"
+          >
+            ◀
+          </button>
+          <button
+            disabled={activeTab === history.length - 1}
+            onClick={() => setActiveTab(activeTab + 1)}
+            className="p-1.5 rounded hover:bg-white/10 disabled:opacity-20 text-white transition-colors"
+          >
+            ▶
+          </button>
+          <div className="flex-1 px-3 py-1 rounded bg-white/5 border border-white/5 text-[10px] font-mono text-gray-300">
+            https://www.{history[activeTab]}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center gap-2 text-[10px] font-mono pt-2">
+          {history.map((url, idx) => {
+            const isActive = activeTab === idx;
+            return (
+              <div key={idx} className="flex items-center gap-2">
+                <div
+                  className={`px-3 py-1 rounded-lg border transition-all ${
+                    isActive
+                      ? 'bg-[var(--color-accent-violet)]/20 border-[var(--color-accent-violet)] text-white font-bold shadow-md'
+                      : 'border-white/5 bg-white/[0.01] text-gray-500'
+                  }`}
+                >
+                  {url.replace('.com', '')}
+                </div>
+                {idx < history.length - 1 && <span className="text-gray-700">⇄</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'spotify') {
+    const songs = ['Billie Jean', 'Hotel California', 'Blinding Lights'];
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-3">
+        <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Playlist Queue Links</p>
+        <div className="flex flex-col gap-2">
+          {songs.map((song, idx) => (
+            <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/5 text-xs hover:border-emerald-500/20 transition-all">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600 font-mono">#{idx+1}</span>
+                <span className="text-white font-medium">{song}</span>
+              </div>
+              <span className="text-[10px] font-mono text-gray-500">
+                {idx < songs.length - 1 ? 'next: #' + (idx + 2) : 'next: NULL'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'undo-redo') {
+    const states = ['[Init]', '[Typed "Hel"]', '[Typed "Hello"]'];
+    return (
+      <div className="p-5 rounded-2xl border border-white/[0.04] bg-[#0c0c0e] space-y-4">
+        <div className="flex items-center justify-center gap-3">
+          <button
+            disabled={activeTab === 0}
+            onClick={() => setActiveTab(activeTab - 1)}
+            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-20 text-xs font-bold text-white transition-all shadow-md"
+          >
+            ↩ Undo
+          </button>
+          <button
+            disabled={activeTab === states.length - 1}
+            onClick={() => setActiveTab(activeTab + 1)}
+            className="px-4 py-2 rounded-xl bg-[var(--color-accent-cyan)]/20 border border-[var(--color-accent-cyan)]/30 hover:bg-[var(--color-accent-cyan)]/30 disabled:opacity-20 text-xs font-bold text-[var(--color-accent-cyan)] transition-all shadow-md"
+          >
+            Redo ↪
+          </button>
+        </div>
+        <div className="flex items-center justify-center gap-2 text-xs font-mono pt-2">
+          {states.map((state, idx) => {
+            const isActive = activeTab === idx;
+            return (
+              <div key={idx} className="flex items-center gap-2">
+                <div
+                  className={`px-3 py-1.5 rounded-lg border transition-all ${
+                    isActive
+                      ? 'bg-[var(--color-accent-emerald)]/10 border-[var(--color-accent-emerald)] text-white font-bold'
+                      : 'border-white/5 bg-white/[0.01] text-gray-600'
+                  }`}
+                >
+                  {state}
+                </div>
+                {idx < states.length - 1 && <span className="text-gray-700">⇄</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+export function BespokeVisualizer({ type }: { type: string }) {
+  if (['array-vs-linked', 'memory-scatter', 'scavenger-hunt'].includes(type)) {
+    return <MemoryVisualizer type={type} />;
+  }
+  if (['node-anatomy', 'traversal', 'search', 'singly-list', 'doubly-list', 'circular-list', 'reversal'].includes(type)) {
+    return <ListDiagramVisualizer type={type} />;
+  }
+  if (['fast-slow-pointers', 'cycle-detection', 'runners', 'race-lap'].includes(type)) {
+    return <SimulationVisualizer type={type} />;
+  }
+  if (['insertion', 'deletion', 'merge-lists', 'zipper', 'train', 'chain-unhook', 'station', 'spotify'].includes(type)) {
+    return <StepPipelineVisualizer type={type} />;
+  }
+  if (['browser', 'undo-redo', 'scheduler', 'patterns', 'toolset', 'real-world-map'].includes(type)) {
+    return <ApplicationVisualizer type={type} />;
+  }
+
+  if (type === 'array') {
+    return <ArrayVisualizer />;
+  }
+
+  return (
+    <div className="p-4 rounded-xl bg-[#0c0c0e]/60 border border-white/[0.04] flex items-center justify-center font-mono text-xs text-gray-500">
+      Interactive Visualization: {type.replace('-', ' ').toUpperCase()}
+    </div>
+  );
+}
+
+// =============== ON-THE-FLY NORMALIZER ENGINE ===============
+
+function normalizeSection(section: any): any {
+  if (!section) return null;
+  if (section.content.blocks && Array.isArray(section.content.blocks)) {
+    return section;
+  }
+
+  const content = section.content;
+  const blocks: any[] = [];
+
+  // Parse keyIdea or prose into Concept blocks
+  if (content.keyIdea) {
+    blocks.push({
+      type: 'concept',
+      text: content.prose || [content.keyIdea.description],
+      visual: {
+        type: content.memoryDiagram ? 'memory-scatter' : content.interactiveVisualizer === 'array' ? 'array' : 'default',
+        title: content.keyIdea.title
+      }
+    });
+  } else if (content.prose && content.prose.length > 0) {
+    blocks.push({
+      type: 'concept',
+      text: content.prose,
+      visual: { type: 'default' }
+    });
+  }
+
+  // Parse methods into step pipelines
+  if (content.methods && content.methods.length > 0) {
+    blocks.push({
+      type: 'internal-working',
+      text: ['Review the structural definition and helper methods below.'],
+      steps: content.methods.map((m: any) => ({
+        title: m.name,
+        description: `${m.description} (Syntax: ${m.syntax})`
+      }))
+    });
+  }
+
+  // Parse complexity row
+  if (content.complexityTable && content.complexityTable.length > 0) {
+    const row = content.complexityTable[0];
+    blocks.push({
+      type: 'complexity',
+      text: ['Performance breakdown for the target operation.'],
+      operation: row.operation,
+      time: row.average || row.worst || 'O(N)',
+      space: row.space || 'O(1)',
+      reason: row.notes || 'Shifting elements requires traversal.'
+    });
+  }
+
+  // Parse analogy or features into real world mappings
+  if (content.analogy) {
+    blocks.push({
+      type: 'real-world',
+      text: [content.analogy.description],
+      visual: {
+        type: 'default',
+        title: content.analogy.title
+      }
+    });
+  } else if (content.whyItMatters && content.whyItMatters.length > 0) {
+    blocks.push({
+      type: 'real-world',
+      text: ['Real-world systems prioritizing this structure.'],
+      visual: {
+        type: 'default',
+        title: content.whyItMatters[0].title
+      }
+    });
+  }
+
+  // Parse mistakes and checklists
+  if (content.interviewPerspective) {
+    blocks.push({
+      type: 'interview-insight',
+      text: ['Key checkmarks for technical whiteboard interviews.'],
+      checklist: content.interviewPerspective.checklist || []
+    });
+  }
+
+  // Parse practice description
+  if (content.practice && content.practice.length > 0) {
+    blocks.push({
+      type: 'mini-practice',
+      question: content.practice[0].description,
+      current: 'Target: ' + content.practice[0].title,
+      expected: 'Time: ' + content.practice[0].timeComplexity + ', Space: ' + content.practice[0].spaceComplexity,
+      interactiveDemoType: 'sandbox'
+    });
+  }
+
+  return {
+    ...section,
+    layoutType: section.layoutType || 'introduction',
+    content: {
+      ...content,
+      blocks
+    }
+  };
+}
 
 interface ContentRendererProps {
   section: any; // Section type from content/index.ts
@@ -518,6 +1438,7 @@ const sectionVariants = {
 
 export function ContentRenderer({ section, topicId }: ContentRendererProps) {
   const [activeLangTab, setActiveLangTab] = useState(0);
+  const normalizedSection = normalizeSection(section);
 
   const renderParagraphs = (
     text: string | string[],
@@ -533,7 +1454,7 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
     return <p className={textClass}>{text}</p>;
   };
 
-  if (!section) {
+  if (!normalizedSection) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500">
         <p>No content available for this section.</p>
@@ -541,12 +1462,12 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
     );
   }
 
-  const content = section.content;
+  const content = normalizedSection.content;
 
   if (content.revisionHub) {
     return (
       <motion.div
-        key={section.id}
+        key={normalizedSection.id}
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -15 }}
@@ -558,10 +1479,10 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
   }
 
   // Bespoke Handcrafted Layout Switcher
-  if (section.layoutType) {
+  if (normalizedSection.layoutType) {
     return (
       <motion.article
-        key={section.id ?? topicId}
+        key={normalizedSection.id ?? topicId}
         variants={sectionVariants}
         initial="hidden"
         animate="visible"
@@ -570,260 +1491,179 @@ export function ContentRenderer({ section, topicId }: ContentRendererProps) {
         {/* Customized Header */}
         <header className="flex items-center gap-4 border-b border-[var(--color-border-glass)] pb-6">
           <span className="text-4xl p-3 rounded-2xl bg-[var(--color-surface-elevated)] border border-white/[0.04]">
-            {section.icon}
+            {normalizedSection.icon}
           </span>
           <div>
-            <h2 className="text-3xl font-black tracking-tight text-white">{section.title}</h2>
+            <h2 className="text-3xl font-black tracking-tight text-white">{normalizedSection.title}</h2>
             <div className="flex items-center gap-2 mt-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
               <Clock size={12} />
-              <span>{section.estimatedTime}</span>
+              <span>{normalizedSection.estimatedTime}</span>
               <span className="text-white/20">•</span>
-              <span className="text-[var(--color-accent-cyan)]">{section.layoutType.replace('-', ' ')}</span>
+              <span className="text-[var(--color-accent-cyan)]">{normalizedSection.layoutType.replace('-', ' ')}</span>
             </div>
           </div>
         </header>
 
-        {/* 1. INTRODUCTION LAYOUT */}
-        {section.layoutType === 'introduction' && (
-          <div className="space-y-8 animate-fadeIn">
-            {content.blocks?.map((block: any, idx: number) => {
-              if (block.type === 'concept') {
-                return (
-                  <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)]/80 relative overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-accent-cyan)]/5 rounded-full blur-3xl" />
-                    <span className="text-xs font-bold text-[var(--color-accent-cyan)] uppercase tracking-widest block mb-2">💡 Core Concept</span>
-                    <div className="mb-6">{renderParagraphs(block.text, "text-lg text-gray-100 font-medium leading-relaxed mb-4")}</div>
-                    <div className="p-4 rounded-2xl bg-black/40 border border-white/[0.04] flex items-center justify-center">
-                      <div className="flex gap-2 items-center text-sm font-mono">
-                        <span className="text-gray-500">Array:</span>
-                        <span className="px-2 py-1 rounded bg-white/5 border border-white/10 text-white">[A][B][C][D]</span>
-                        <span className="text-gray-400 font-bold mx-2">vs</span>
-                        <span className="text-gray-500">Linked:</span>
-                        <span className="px-2 py-1 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 text-white">[A]</span>
-                        <span className="text-gray-600">→</span>
-                        <span className="px-2 py-1 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 text-white">[B]</span>
-                        <span className="text-gray-600">→</span>
-                        <span className="px-2 py-1 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 text-white">[C]</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              if (block.type === 'real-world') {
-                return (
-                  <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/30 space-y-4">
-                    <span className="text-xs font-bold text-[var(--color-accent-emerald)] uppercase tracking-widest block">🌍 Real-World Mapping</span>
-                    <div className="my-2">{renderParagraphs(block.text, "text-gray-300 leading-relaxed mb-3")}</div>
-                    <div className="p-4 rounded-xl border border-white/[0.04] bg-[#0c0c0e]">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">🎵</span>
-                        <div>
-                          <p className="text-sm font-bold text-white">Spotify Queue Simulation</p>
-                          <p className="text-xs text-gray-500">Current Song → Next Song → Queue End</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })}
-          </div>
-        )}
-
-        {/* 2. MEMORY MAP LAYOUT */}
-        {section.layoutType === 'memory-map' && (
+        {/* Dynamic Handcrafted Layout Engine - Sequential Blocks */}
+        {content.blocks && Array.isArray(content.blocks) && (
           <div className="space-y-8">
-            <div className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)] shadow-2xl">
-              <span className="text-xs font-bold text-rose-400 uppercase tracking-widest block mb-2">🧠 Scattered RAM Explorer</span>
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                Nodes live in arbitrary addresses across heap memory. Click cells to view details.
-              </p>
-
-              {/* RAM Grid visualizer */}
-              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 mb-6">
-                {Array.from({ length: 16 }).map((_, i) => {
-                  const addr = 1000 + i * 16;
-                  const isNode = [1016, 1064, 1128].includes(addr);
+            {content.blocks.map((block: any, idx: number) => {
+              switch (block.type) {
+                case 'concept':
                   return (
-                    <button
-                      key={i}
-                      onClick={() => alert(`Address ${addr}: ${isNode ? 'Allocated Node Data' : 'Free Heap space'}`)}
-                      className={`p-3 rounded-xl border font-mono text-[10px] text-center transition-all ${
-                        isNode
-                          ? 'bg-[var(--color-accent-violet)]/10 border-[var(--color-accent-violet)] text-[var(--color-accent-violet)] font-bold shadow-[0_0_12px_rgba(139,92,246,0.15)]'
-                          : 'bg-white/[0.02] border-white/[0.04] text-gray-600 hover:border-white/10'
-                      }`}
-                    >
-                      {addr}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="p-4 rounded-xl border border-white/[0.04] bg-[#0c0c0e] flex items-center justify-between text-xs font-mono">
-                <span className="text-gray-500">Heap Size: 256MB</span>
-                <span className="text-[var(--color-accent-cyan)]">Fragmentation: High (Singly scattered nodes)</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 3. OPERATION VISUALIZER LAYOUT */}
-        {section.layoutType === 'operation-visualizer' && (
-          <div className="space-y-8 animate-fadeIn">
-            {content.blocks?.map((block: any, idx: number) => {
-              if (block.type === 'concept') {
-                return (
-                  <div key={idx} className="space-y-4">
-                    <div>{renderParagraphs(block.text, "text-gray-300 leading-relaxed mb-3")}</div>
-                    <div className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)] relative">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-xs font-bold text-[var(--color-accent-cyan)] uppercase tracking-widest">Before Operations</span>
-                        <span className="text-xs font-bold text-[var(--color-accent-emerald)] uppercase tracking-widest">After Operations</span>
-                      </div>
-                      <div className="flex flex-col sm:flex-row items-center gap-6 justify-center bg-black/40 p-4 rounded-2xl border border-white/[0.02] font-mono text-sm">
-                        <div className="flex items-center gap-1.5 opacity-60">
-                          <span className="px-2.5 py-1.5 rounded bg-white/5 border border-white/10">[10]</span>
-                          <span>→</span>
-                          <span className="px-2.5 py-1.5 rounded bg-white/5 border border-white/10">[20]</span>
-                        </div>
-                        <span className="text-gray-600">⚡ Rewire ⚡</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="px-2.5 py-1.5 rounded bg-[var(--color-accent-emerald)]/10 border border-[var(--color-accent-emerald)]/30">[10]</span>
-                          <span className="text-[var(--color-accent-emerald)] font-bold">→</span>
-                          <span className="px-2.5 py-1.5 rounded bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 font-bold">[15]</span>
-                          <span className="text-[var(--color-accent-emerald)] font-bold">→</span>
-                          <span className="px-2.5 py-1.5 rounded bg-[var(--color-accent-emerald)]/10 border border-[var(--color-accent-emerald)]/30">[20]</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              if (block.type === 'internal-working') {
-                return (
-                  <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/20 space-y-4">
-                    <span className="text-xs font-bold text-[var(--color-accent-violet)] uppercase tracking-widest block">⚙️ Step-by-Step State Slider</span>
-                    <div className="space-y-3">
-                      {block.steps.map((step: any, sIdx: number) => (
-                        <div key={sIdx} className="flex gap-4 items-start p-3 rounded-xl bg-[#0c0c0e] border border-white/[0.02]">
-                          <span className="w-6 h-6 rounded-full bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
-                            {sIdx + 1}
-                          </span>
-                          <div>
-                            <p className="text-sm font-bold text-white">{step.title}</p>
-                            <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })}
-          </div>
-        )}
-
-        {/* 4. ALGORITHM SIMULATION LAYOUT */}
-        {section.layoutType === 'algorithm-simulation' && (
-          <div className="space-y-8 animate-fadeIn">
-            {content.blocks?.map((block: any, idx: number) => {
-              if (block.type === 'concept') {
-                return (
-                  <div key={idx} className="space-y-4">
-                    <div>{renderParagraphs(block.text, "text-gray-300 leading-relaxed mb-3")}</div>
-
-                    {/* Circular visual track or slow-fast pointers */}
-                    <div className="p-8 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)] shadow-2xl relative">
-                      <div className="absolute top-4 left-4 text-[10px] font-bold text-[var(--color-accent-violet)] uppercase tracking-widest">
-                        Floyd's Fast & Slow Simulator
-                      </div>
+                    <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-obsidian)]/80 relative overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-accent-cyan)]/5 rounded-full blur-3xl" />
+                      <span className="text-xs font-bold text-[var(--color-accent-cyan)] uppercase tracking-widest block mb-2">💡 Core Concept</span>
+                      <div className="mb-6">{renderParagraphs(block.text, "text-base text-gray-100 font-medium leading-relaxed mb-4")}</div>
                       
-                      <div className="h-44 flex flex-col items-center justify-center gap-6">
-                        {/* Track visualization */}
-                        <div className="relative w-28 h-28 rounded-full border border-dashed border-white/10 flex items-center justify-center">
-                          <div className="absolute top-0 w-8 h-8 rounded-full bg-[var(--color-accent-cyan)]/10 border border-[var(--color-accent-cyan)]/30 flex items-center justify-center text-xs font-bold text-white shadow-[0_0_12px_rgba(6,182,212,0.2)]">
-                            🐢
-                          </div>
-                          <div className="absolute bottom-0 w-8 h-8 rounded-full bg-[var(--color-accent-violet)]/10 border border-[var(--color-accent-violet)]/30 flex items-center justify-center text-xs font-bold text-white shadow-[0_0_12px_rgba(139,92,246,0.2)]">
-                            🐇
-                          </div>
-                          <span className="text-xs text-gray-500 font-mono">Loop Track</span>
-                        </div>
-
-                        {/* Controls */}
-                        <button
-                          onClick={() => alert("Simulation Running: Slow pointer advances 1 step, Fast pointer advances 2 steps. Collision occurs in 4 steps.")}
-                          className="px-5 py-2.5 rounded-full bg-[var(--color-accent-violet)] hover:bg-[var(--color-accent-violet)]/80 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(139,92,246,0.25)] flex items-center gap-2"
-                        >
-                          <Zap size={12} /> Run Simulation Frame
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })}
-          </div>
-        )}
-
-        {/* 5. PATTERN MATCHING LAYOUT */}
-        {section.layoutType === 'pattern-matching' && (
-          <div className="space-y-8 animate-fadeIn">
-            {content.blocks?.map((block: any, idx: number) => {
-              if (block.type === 'concept') {
-                return (
-                  <div key={idx} className="space-y-4">
-                    <div>{renderParagraphs(block.text, "text-gray-300 leading-relaxed mb-3")}</div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {block.visual.data?.map((pattern: any, pIdx: number) => (
-                        <div key={pIdx} className="p-5 rounded-2xl border border-white/[0.04] bg-[var(--color-surface-elevated)]/30 hover:border-[var(--color-accent-cyan)]/30 transition-colors">
-                          <span className="text-[10px] font-bold text-[var(--color-accent-cyan)] uppercase tracking-wider block mb-1">Pattern</span>
-                          <h4 className="text-sm font-bold text-white mb-2">{pattern.name}</h4>
-                          <p className="text-xs text-gray-400 leading-normal">{pattern.description}</p>
-                        </div>
-                      )) ?? (
-                        <div className="p-5 rounded-2xl border border-white/[0.04] bg-[var(--color-surface-elevated)]/30 col-span-2 text-center text-xs text-gray-500 font-mono">
-                          No specific patterns populated. Tap to inspect visual assets.
+                      {/* Handcrafted Visual per LayoutType */}
+                      {block.visual && block.visual.type && (
+                        <div className="mt-4">
+                          <BespokeVisualizer type={block.visual.type} />
                         </div>
                       )}
                     </div>
-                  </div>
-                );
+                  );
+                case 'internal-working':
+                  return (
+                    <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/30 space-y-4">
+                      <span className="text-xs font-bold text-[var(--color-accent-violet)] uppercase tracking-widest block">⚙️ Internal Step Pipeline</span>
+                      <div className="mb-4">{renderParagraphs(block.text, "text-sm text-gray-300 leading-relaxed mb-3")}</div>
+                      {block.steps && Array.isArray(block.steps) && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {block.steps.map((step: any, sIdx: number) => (
+                            <div key={sIdx} className="p-4 rounded-xl border border-white/[0.04] bg-[#0c0c0e] hover:border-white/[0.08] transition-colors">
+                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">Step {sIdx + 1}: {step.title}</span>
+                              <p className="text-xs text-gray-400 leading-normal">{step.description}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                case 'complexity':
+                  return (
+                    <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-red-500/[0.01] border-red-500/10 space-y-4">
+                      <span className="text-xs font-bold text-red-400 uppercase tracking-widest block">⚡ Performance Profile</span>
+                      <div className="mb-4">{renderParagraphs(block.text, "text-sm text-gray-300 leading-relaxed mb-3")}</div>
+                      <div className="p-5 rounded-2xl border border-red-500/20 bg-red-500/[0.02] flex items-center justify-between gap-4">
+                        <div>
+                          <span className="text-xs font-bold text-red-400/80 uppercase tracking-wider block mb-1">Time Complexity</span>
+                          <code className="text-2xl font-mono font-black text-red-400">{block.time}</code>
+                          <span className="text-xs text-gray-400 block mt-2">({block.reason})</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs font-semibold text-gray-500 block">Operation</span>
+                          <span className="text-sm font-bold text-white block mt-0.5">{block.operation}</span>
+                          <span className="text-xs text-gray-400 font-mono block mt-2">Space: {block.space}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                case 'real-world':
+                  return (
+                    <div key={idx} className="p-6 rounded-3xl border border-[var(--color-border-glass)] bg-[var(--color-surface-elevated)]/20 space-y-4">
+                      <span className="text-xs font-bold text-[var(--color-accent-emerald)] uppercase tracking-widest block">🌍 Real-World Mapping</span>
+                      <div className="my-2">{renderParagraphs(block.text, "text-gray-300 leading-relaxed mb-3")}</div>
+                      {block.visual && block.visual.type && (
+                        <div className="mt-2">
+                          <BespokeVisualizer type={block.visual.type} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                case 'interview-insight':
+                  return (
+                    <div key={idx} className="space-y-4 animate-fadeIn">
+                      <div className="mb-2">{renderParagraphs(block.text, "text-gray-300 leading-relaxed")}</div>
+                      <RecruiterCard data={{ title: 'Interview Perspective', checklist: block.checklist }} />
+                    </div>
+                  );
+                case 'mini-practice':
+                  return (
+                    <div key={idx} className="p-6 rounded-3xl border border-[var(--color-accent-violet)]/20 bg-[var(--color-accent-violet)]/[0.01] space-y-4">
+                      <div className="flex items-start gap-2.5">
+                        <span className="text-xl">🎯</span>
+                        <div>
+                          <h4 className="text-sm font-bold text-white mb-1">Interactive Sandbox Challenge</h4>
+                          <p className="text-gray-300 text-sm">{block.question}</p>
+                        </div>
+                      </div>
+                      <div className="p-4 rounded-2xl border border-[var(--color-accent-violet)]/10 bg-black/50 space-y-4">
+                        <div className="flex items-center justify-between text-xs font-mono">
+                          <span className="text-gray-500">Current: {block.current}</span>
+                          <span className="text-[var(--color-accent-emerald)] font-bold">Expected: {block.expected}</span>
+                        </div>
+                        <div className="h-24 flex items-center justify-center">
+                          <button
+                            onClick={() => alert("Simulation Running: Swapping nodes and updating pointers in sandbox.")}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-accent-violet)] text-white text-xs font-bold hover:bg-[var(--color-accent-violet)]/80 transition-all shadow-[0_0_12px_rgba(139,92,246,0.3)]"
+                          >
+                            <Zap size={12} /> Run Interactive Sandbox Simulation
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                default:
+                  return null;
               }
-              return null;
             })}
           </div>
         )}
 
-        {/* 6. INTERVIEW PREPARATION LAYOUT */}
-        {section.layoutType === 'interview-prep' && (
-          <div className="space-y-8 animate-fadeIn">
-            <div className="p-6 rounded-3xl border border-red-500/20 bg-red-500/[0.01] space-y-6">
-              <span className="text-xs font-bold text-red-400 uppercase tracking-widest block">⚠️ Common Interview Traps</span>
-              
-              <div className="space-y-4">
-                <div className="p-4 rounded-xl border border-red-500/10 bg-red-950/10">
-                  <h4 className="text-sm font-bold text-red-300">#1: Null Dereference Crash</h4>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                    Always verify `curr.next` or `curr` is not null before checking `curr.next.next`.
-                  </p>
-                </div>
-                <div className="p-4 rounded-xl border border-red-500/10 bg-red-950/10">
-                  <h4 className="text-sm font-bold text-red-300">#2: Lost Pointer Reconnection</h4>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                    Save the next node address before updating pointers, or the rest of the list is lost in heap space.
-                  </p>
-                </div>
+        {/* Append codeExamples, practice, and quiz if they exist outside blocks */}
+        {content.codeExamples && Array.isArray(content.codeExamples) && content.codeExamples.length > 0 && (
+          <div className="mt-8 border-t border-[var(--color-border-glass)] pt-8">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
+              <Code2 size={16} /> Code Implementation Reference
+            </h3>
+            {content.codeExamples.length > 1 && (
+              <div className="flex items-center gap-1 border-b border-[var(--color-border-glass)] mb-4">
+                {content.codeExamples.map((ex: CodeExampleData, i: number) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveLangTab(i)}
+                    className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition-colors ${
+                      activeLangTab === i
+                        ? "text-[var(--color-accent-cyan)] bg-[var(--color-surface-elevated)] border border-b-0 border-[var(--color-border-glass)] -mb-px"
+                        : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    {ex.language}
+                  </button>
+                ))}
               </div>
-            </div>
-
-            {content.revisionHub && (
-              <RevisionHub data={content.revisionHub} />
             )}
+            <CodeBlock
+              code={content.codeExamples[activeLangTab]?.code ?? ""}
+              language={content.codeExamples[activeLangTab]?.language ?? "python"}
+              title={content.codeExamples[activeLangTab]?.title}
+              explanation={content.codeExamples[activeLangTab]?.explanation}
+              showLineNumbers={true}
+            />
+          </div>
+        )}
+
+        {content.practice && Array.isArray(content.practice) && content.practice.length > 0 && (
+          <div className="mt-8 border-t border-[var(--color-border-glass)] pt-8">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">
+              Practice Problems
+            </h3>
+            <div className="space-y-3">
+              {content.practice.map((item: PracticeItemData, i: number) => (
+                <PracticeItem key={i} item={item} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {content.quiz && Array.isArray(content.quiz) && content.quiz.length > 0 && (
+          <div className="mt-8 border-t border-[var(--color-border-glass)] pt-8">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">
+              Knowledge Check
+            </h3>
+            <QuizSection questions={content.quiz} />
           </div>
         )}
       </motion.article>
