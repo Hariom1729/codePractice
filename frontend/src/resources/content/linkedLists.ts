@@ -2593,7 +2593,7 @@ list.display();                // 30 → 20 → 15 → 5 → NULL`,
         'Foundation for understanding doubly linked lists, circular lists, and advanced patterns',
       ],
     },
-  },,
+  },
 // ─────────────────────────────────────────────────────────────────────────
   // 10. DOUBLY LINKED LIST
   // ─────────────────────────────────────────────────────────────────────────
@@ -4373,7 +4373,7 @@ bool isPalindrome(ListNode* head) {
         'Reversal appears as a subroutine in 20+ other linked list problems — master it and many problems unlock',
       ],
     },
-  },,
+  },
 // ─────────────────────────────────────────────────────────────────────────
   // 14. COMMON INTERVIEW PATTERNS
   // ─────────────────────────────────────────────────────────────────────────
